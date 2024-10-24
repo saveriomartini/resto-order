@@ -11,12 +11,12 @@ public class Restaurant {
     private Address address;
     private Set<Product> productsCatalog;
 
-    public Restaurant(Long id, String name, Address address) {
+    public Restaurant(Long id, String name) {
         this.id = id;
         this.name = name;
-        this.address = address;
-        this.orders = new HashSet<>();
-        this.productsCatalog = new HashSet<>();
+//        this.address = address;
+//        this.orders = new HashSet<>();
+//        this.productsCatalog = new HashSet<>();
     }
 
     public Long getId() {

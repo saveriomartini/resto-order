@@ -54,6 +54,7 @@ public class OrderCLI extends AbstractCLI {
     }
 
     public Order selectOrder() {
+
         Customer customer = (new CustomerCLI()).getExistingCustomer();
         Object[] orders = customer.getOrders().toArray();
         if (orders.length == 0) {
