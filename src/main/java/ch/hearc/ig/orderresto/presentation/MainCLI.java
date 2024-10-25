@@ -4,13 +4,21 @@ import ch.hearc.ig.orderresto.business.Order;
 import ch.hearc.ig.orderresto.persistence.FakeDb;
 
 public class MainCLI extends AbstractCLI {
+
+    CustomerCLI customerCLI;
+
+    public MainCLI() {
+        this.customerCLI = new CustomerCLI();
+    }
+
     public void run() {
         this.ln("======================================================");
         this.ln("Que voulez-vous faire ?");
         this.ln("0. Quitter l'application");
         this.ln("1. Faire une nouvelle commande");
         this.ln("2. Consulter une commande");
-        int userChoice = this.readIntFromUser(2);
+        this.ln("3. Rechercher un client par ID");
+        int userChoice = this.readIntFromUser(4);
         this.handleUserChoice(userChoice);
     }
 
@@ -23,11 +31,16 @@ public class MainCLI extends AbstractCLI {
         if (userChoice == 1) {
             Order newOrder = orderCLI.createNewOrder();
             FakeDb.getOrders().add(newOrder);
-        } else {
+        } else if (userChoice == 2) {
             Order existingOrder = orderCLI.selectOrder();
             if (existingOrder != null) {
                 orderCLI.displayOrder(existingOrder);
             }
+        } else if (userChoice == 3) {
+            CustomerCLI customerCLI = new CustomerCLI();
+            this.ln("Entrez l'ID du client :");
+            Long id = this.readLongFromUser();
+            customerCLI.getCustomerById(id);
         }
         this.run();
     }
