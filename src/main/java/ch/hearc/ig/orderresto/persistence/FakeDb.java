@@ -35,18 +35,18 @@ public class FakeDb {
             FakeDb.restaurants = new HashSet<>();
 
             Address address1 = new Address("CH", "2000", "Neuchâtel", "Place de La Gare", "2");
-            Restaurant r1 = new Restaurant(null, "Alpes Et Lac");
+            Restaurant r1 = new Restaurant(null, "Alpes Et Lac", address1);
             new Product(null, "Tartare de chevreuil", new BigDecimal(20),  "De saison", r1);
             FakeDb.restaurants.add(r1);
 
             Address address2 = new Address("CH", "2000", "Neuchâtel", "Pl. Blaise-Cendrars", "5");
-            Restaurant r2 = new Restaurant(null, "Les Belgeries");
+            Restaurant r2 = new Restaurant(null, "Les Belgeries", address2);
             new Product(null, "Frites mini", new BigDecimal("5"),  "150g de frites + sauce au choix", r2);
             new Product(null, "Frites normales", new BigDecimal("7.5"),  "250g de frites + sauce au choix", r2);
             FakeDb.restaurants.add(r2);
 
             Address address3 = new Address("CH", "2000", "Neuchâtel", "Espa. de l'Europe", "1/3");
-            Restaurant r3 = new Restaurant(null, "Domino's Pizza");
+            Restaurant r3 = new Restaurant(null, "Domino's Pizza", address3);
             new Product(null, "MARGHERITA", new BigDecimal("16"),  "Sauce tomate, extra mozzarella (45% MG/ES)", r3);
             new Product(null, "VÉGÉTARIENNE", new BigDecimal("18"),  "Sauce tomate, mozzarella (45% MG/ES), champignons, poivrons, tomates cherry, olives, oignons rouges", r3);
             new Product(null, "CHEESE & HAM", new BigDecimal("21"),  "Sauce tomate, mozzarella (45% MG/ES), jambon (CH)", r3);

@@ -20,7 +20,7 @@ public class Product {
         this.description = description;
         this.orders = new HashSet<>();
         this.restaurant = restaurant;
-        //restaurant.registerProduct(this);
+        restaurant.registerProduct(this);
     }
 
     public Long getId() {

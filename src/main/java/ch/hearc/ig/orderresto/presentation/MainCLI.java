@@ -10,13 +10,13 @@ public class MainCLI extends AbstractCLI {
 //        this.ln("======================================================");
 //        this.ln("Que voulez-vous faire ?");
 //        this.ln("0. Quitter l'application");
-//        this.ln("1. Faire une nouvelle commande");
+        this.ln("1. Faire une nouvelle commande");
 //        this.ln("2. Consulter une commande");
-//        int userChoice = this.readIntFromUser(2);
-//        this.handleUserChoice(userChoice);
-        ProductDataMapper productDataMapper = new ProductDataMapper();
-        Product product = productDataMapper.findById(1L);
-        this.ln(product.toString());
+        int userChoice = this.readIntFromUser(2);
+        this.handleUserChoice(userChoice);
+//        ProductDataMapper productDataMapper = new ProductDataMapper();
+//        Product product = productDataMapper.findById(1L);
+//        this.ln(product.toString());
     }
 
     private void handleUserChoice(int userChoice) {
