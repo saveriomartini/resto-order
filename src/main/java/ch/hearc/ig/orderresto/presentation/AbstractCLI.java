@@ -89,4 +89,19 @@ public abstract class AbstractCLI {
         }
         return input;
     }
+
+    protected Long readLongFromUser() {
+        Long input = null;
+        while (input == null) {
+            try {
+                input = this.scanner.nextLong();
+            } catch (InputMismatchException e) {
+                this.ln("Veuillez entrer un nombre entier.");
+                input = null;
+            } finally {
+                scanner.nextLine();
+            }
+        }
+        return input;
+    }
 }

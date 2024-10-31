@@ -18,4 +18,14 @@ public class OrganizationCustomer extends Customer {
     public String getLegalForm() {
         return legalForm;
     }
+
+    @Override
+    public String toString() {
+        return "ID No. " + getId() +
+               ", Entreprise" +
+               ", Nom : '" + name + " " + legalForm + '\'' +
+               ", Addresse : " + getAddress() +
+               ", Telephone : '" + getPhone() + '\'' +
+               ", Email : '" + getEmail() + '\'';
+    }
 }

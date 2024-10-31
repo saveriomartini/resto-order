@@ -24,4 +24,16 @@ public class PrivateCustomer extends Customer {
     public String getLastName() {
         return lastName;
     }
+
+    @Override
+    public String toString() {
+        return "ID No. " + getId() +
+                ", Client privé" +
+                ", Nom : '" + lastName + '\'' +
+                ", Prénom : '" + firstName + '\'' +
+                ", Addresse : " + getAddress() +
+                ", Telephone : '" + getPhone() + '\'' +
+                ", Email : '" + getEmail() + '\'' +
+                ", Genre : '" + (gender == null ? "Femme" : "Homme") + '\'';
+    }
 }

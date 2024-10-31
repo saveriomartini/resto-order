@@ -35,4 +35,9 @@ public class Address {
     public String getStreetNumber() {
         return streetNumber;
     }
+
+    @Override
+    public String toString() {
+        return street + " " + streetNumber + ", " + postalCode + " " + locality + " " + countryCode;
+    }
 }
