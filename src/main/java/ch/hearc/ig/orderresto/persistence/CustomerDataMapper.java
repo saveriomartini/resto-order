@@ -124,6 +124,7 @@ public class CustomerDataMapper {
         return null;
     }
 
+    // Coucou de test
     public void insert(Customer customer) throws SQLException {
         try {
             Connection dbConnect = DbUtils.getConnection();
