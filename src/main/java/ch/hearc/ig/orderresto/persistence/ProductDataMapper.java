@@ -13,11 +13,10 @@ import java.util.Set;
 
 public class ProductDataMapper {
 
-    private Connection connection = DbUtils.getConnection();
-
     public Product findById(Long id) {
 
         try {
+            Connection connection = DbUtils.getConnection();
             PreparedStatement statement = connection.prepareStatement("SELECT * FROM produit WHERE numero = ?");
             statement.setLong(1, id);
             ResultSet resultSet = statement.executeQuery();
@@ -41,6 +40,7 @@ public class ProductDataMapper {
 
     public Set<Product> getAllProductsByRestaurant( Long restaurantId) {
         try {
+            Connection connection = DbUtils.getConnection();
             PreparedStatement statement = connection.prepareStatement("SELECT * FROM produit WHERE fk_resto = ?");
             statement.setLong(1, restaurantId);
             ResultSet resultSet = statement.executeQuery();

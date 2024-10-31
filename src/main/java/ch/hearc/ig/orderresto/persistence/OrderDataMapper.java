@@ -2,6 +2,7 @@ package ch.hearc.ig.orderresto.persistence;
 
 import ch.hearc.ig.orderresto.business.Customer;
 import ch.hearc.ig.orderresto.business.Order;
+import ch.hearc.ig.orderresto.business.Restaurant;
 import ch.hearc.ig.orderresto.service.DbUtils;
 
 import java.sql.Connection;
@@ -12,6 +13,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class OrderDataMapper {
+
+    ProductDataMapper productDataMapper = new ProductDataMapper();
 
     public void insert(Order currentOrder) {
         try (Connection db = DbUtils.getConnection();
@@ -40,10 +43,11 @@ public class OrderDataMapper {
             ResultSet dbResult = dbStatement.executeQuery();
             Set<Order> ordersFound = new HashSet<>();
             while (dbResult.next()) {
+                Restaurant restaurant = new RestaurantDataMapper().findById(dbResult.getLong("fk_resto"));
                 Order currentOrder = new Order(
                         dbResult.getLong("numero"),
                         customer,
-                        findRestaurantbyID(dbResult.getLong("fk_resto")), // TODO: restaurant
+                        restaurant,// TODO: restaurant
                         dbResult.getString("a_emporter").equals("O"), // Assuming 'O' for take-away, 'N' otherwise
                         dbResult.getTimestamp("quand").toLocalDateTime()
                 );
