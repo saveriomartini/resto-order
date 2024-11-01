@@ -14,11 +14,12 @@ import java.util.Set;
 
 public class RestaurantDataMapper {
 
-    private Connection connection = DbUtils.getConnection();
+
 
     public Restaurant findById(Long id) {
 
         try {
+            Connection connection = DbUtils.getConnection();
             java.sql.PreparedStatement statement = connection.prepareStatement("SELECT * FROM restaurant WHERE numero = ?");
             statement.setLong(1, id);
             java.sql.ResultSet resultSet = statement.executeQuery();
@@ -45,6 +46,7 @@ public class RestaurantDataMapper {
 
             Set<Restaurant> restaurants = new HashSet<>();
         try {
+            Connection connection = DbUtils.getConnection();
             java.sql.PreparedStatement statement = connection.prepareStatement("SELECT * FROM restaurant");
             java.sql.ResultSet resultSet = statement.executeQuery();
             while (resultSet.next()) {
@@ -70,6 +72,7 @@ public class RestaurantDataMapper {
         Set<Product> products = new HashSet<>();
         Restaurant restaurant = findById(restaurantId);
         try {
+            Connection connection = DbUtils.getConnection();
             PreparedStatement statement = connection.prepareStatement(
                     "SELECT * FROM product WHERE restaurant_id = ?"
             );
