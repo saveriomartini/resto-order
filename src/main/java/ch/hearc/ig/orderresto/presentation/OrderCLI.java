@@ -8,12 +8,13 @@ import ch.hearc.ig.orderresto.business.Restaurant;
 import ch.hearc.ig.orderresto.persistence.CustomerDataMapper;
 import ch.hearc.ig.orderresto.persistence.OrderDataMapper;
 
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class OrderCLI extends AbstractCLI {
 
-    public Order createNewOrder() {
+    public Order createNewOrder() throws SQLException {
 
         this.ln("======================================================");
         Restaurant restaurant = (new RestaurantCLI()).getExistingRestaurant();
@@ -32,11 +33,12 @@ public class OrderCLI extends AbstractCLI {
         }
         CustomerCLI customerCLI = new CustomerCLI();
         Customer customer = null;
+        CustomerDataMapper customerDataMapper = new CustomerDataMapper();
         if (userChoice == 1) {
             customer = customerCLI.getExistingCustomer();
         } else {
             customer = customerCLI.createNewCustomer();
-            CustomerDataMapper.insert(customer);
+            customerDataMapper.insert(customer);
         }
 
         // Possible improvements:
@@ -65,7 +67,7 @@ public class OrderCLI extends AbstractCLI {
         }
         Object[] orders = customer.getOrders().toArray();
         if (orders.length == 0) {
-            this.ln(String.format("Désolé, il n'y a aucune commande pour %s", customer.getEmail()));
+            this.ln(String.format("Désolé, il n'y a aucune commande pour %s", customer.getEmail(), customer.getId()));
             return null;
         }
         this.ln("Choisissez une commande:");

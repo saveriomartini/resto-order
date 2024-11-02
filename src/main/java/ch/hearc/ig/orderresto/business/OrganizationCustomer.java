@@ -1,5 +1,7 @@
 package ch.hearc.ig.orderresto.business;
 
+import java.math.BigDecimal;
+
 public class OrganizationCustomer extends Customer {
 
     private String name;

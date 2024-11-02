@@ -10,10 +10,20 @@ import ch.hearc.ig.orderresto.persistence.CustomerDataMapper;
 
 public class CustomerCLI extends AbstractCLI {
 
+    private CustomerDataMapper customerDataMapper;
+
+    public CustomerCLI() {
+        try {
+            this.customerDataMapper = new CustomerDataMapper();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public Customer getExistingCustomer() {
         this.ln("Quelle est votre addresse email?");
         String email = this.readEmailFromUser();
-        Customer customer = CustomerDataMapper.findCustomerByEmail(email);
+        Customer customer = customerDataMapper.findCustomerByEmail(email);
         if (customer != null && customer.getEmail().equals(email)) {
             return customer;
         } else {
@@ -40,7 +50,7 @@ public class CustomerCLI extends AbstractCLI {
     }*/
 
     public void getCustomerById(Long id) {
-        Customer customer = CustomerDataMapper.findCustomerById(id);
+        Customer customer = customerDataMapper.findCustomerById(id);
         if (customer != null) {
             this.ln("Le client est le suivant : " + customer);
         } else {
@@ -49,7 +59,7 @@ public class CustomerCLI extends AbstractCLI {
     }
 
     public void getCustomerByEmail(String email) {
-        Customer customer = CustomerDataMapper.findCustomerByEmail(email);
+        Customer customer = customerDataMapper.findCustomerByEmail(email);
         if (customer != null) {
             this.ln("Le client est le suivant : " + customer);
         } else {

@@ -16,7 +16,7 @@ public class CustomerDataMapper {
     public CustomerDataMapper() throws SQLException {
     }
 
-    public static Customer findCustomerById(Long id) {
+    public Customer findCustomerById(Long id) {
         try {
             Connection dbConnect = DbUtils.getConnection();
             try (PreparedStatement ps = dbConnect.prepareStatement("SELECT forme_sociale FROM CLIENT WHERE numero = ?")) {
@@ -25,9 +25,9 @@ public class CustomerDataMapper {
                 if (rs.next()) {
                     String legalForm = rs.getString("forme_sociale");
                     if (legalForm != null) {
-                        return CustomerDataMapper.findOrganizationByID(id);
+                        return findOrganizationByID(id);
                     } else {
-                        return CustomerDataMapper.findPrivateByID(id);
+                        return findPrivateByID(id);
                     }
                 } else {
                     return null;
@@ -39,19 +39,19 @@ public class CustomerDataMapper {
         }
     }
 
-    public static Customer findCustomerByEmail(String email) {
+    public Customer findCustomerByEmail(String email) {
         try {
             Connection dbConnect = DbUtils.getConnection();
             try (PreparedStatement ps = dbConnect.prepareStatement("SELECT * FROM CLIENT WHERE email = ?")) {
                 ps.setString(1, email);
                 ResultSet rs = ps.executeQuery();
                 if (rs.next()) {
-                    String emailCustomer = rs.getString("email");
                     Long idCustomer = rs.getLong("numero");
-                    if (emailCustomer != null) {
-                        return CustomerDataMapper.findOrganizationByID(idCustomer);
+                    String legalForm = rs.getString("forme_sociale");
+                    if (legalForm != null) {
+                        return findOrganizationByID(idCustomer);
                     } else {
-                        return CustomerDataMapper.findPrivateByID(idCustomer);
+                        return findPrivateByID(idCustomer);
                     }
                 } else {
                     return null;
@@ -63,7 +63,7 @@ public class CustomerDataMapper {
         }
     }
 
-    public static Customer findOrganizationByID(Long id) throws SQLException {
+    public Customer findOrganizationByID(Long id) throws SQLException {
         Connection dbConnect = DbUtils.getConnection();
         try (PreparedStatement ps = dbConnect.prepareStatement("SELECT * FROM CLIENT WHERE numero = ?")) {
             ps.setLong(1, id);
@@ -93,7 +93,7 @@ public class CustomerDataMapper {
         return null;
     }
 
-    public static Customer findPrivateByID(Long id) throws SQLException {
+    public Customer findPrivateByID(Long id) throws SQLException {
         Connection dbConnect = DbUtils.getConnection();
         try (PreparedStatement ps = dbConnect.prepareStatement("SELECT * FROM CLIENT WHERE numero = ?")) {
             ps.setLong(1, id);
@@ -124,12 +124,11 @@ public class CustomerDataMapper {
         return null;
     }
 
-    public static Customer insert(Customer customer) {
+    public Customer insert(Customer customer) {
         try {
             Connection dbConnect = DbUtils.getConnection();
-            try (PreparedStatement ps = dbConnect.prepareStatement("INSERT INTO CLIENT (email, telephone, pays, code_postal, localite, rue, num_rue, nom, forme_sociale, prenom, est_une_femme, type) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)")) {
-
-
+            String sql = "INSERT INTO CLIENT (email, telephone, pays, code_postal, localite, rue, num_rue, nom, forme_sociale, prenom, est_une_femme, type) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)";
+            try (PreparedStatement ps = dbConnect.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
                 ps.setString(1, customer.getEmail());
                 ps.setString(2, customer.getPhone());
                 ps.setString(3, customer.getAddress().getCountryCode());
@@ -147,21 +146,16 @@ public class CustomerDataMapper {
                     ps.setString(8, ((PrivateCustomer) customer).getLastName());
                     ps.setString(9, null);
                     ps.setString(10, ((PrivateCustomer) customer).getFirstName());
-                    if (((PrivateCustomer) customer).getGender() == "H") {
-                        ps.setString(11, "N");
-                    } else {
-                        ps.setString(11, "O");
-                    }
+                    ps.setString(11, ((PrivateCustomer) customer).getGender().equals("H") ? "N" : "O");
                     ps.setString(12, "P");
                 }
                 ps.executeUpdate();
-                try {
-                    ResultSet rs = ps.getGeneratedKeys();
+
+                try (ResultSet rs = ps.getGeneratedKeys()) {
                     if (rs.next()) {
                         customer.setId(rs.getLong(1));
+                        System.out.println("Customer inserted with id: " + customer.getId());
                     }
-                } catch (SQLException e) {
-                    e.printStackTrace();
                 }
             }
         } catch (SQLException e) {

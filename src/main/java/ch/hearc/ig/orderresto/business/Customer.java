@@ -1,5 +1,6 @@
 package ch.hearc.ig.orderresto.business;
 
+import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -30,7 +31,9 @@ public abstract class Customer {
     public String getEmail() {
         return email;
     }
-    public void setId(long aLong) {
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public Set<Order> getOrders() {
