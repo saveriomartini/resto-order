@@ -30,6 +30,8 @@ public abstract class Customer {
     public String getEmail() {
         return email;
     }
+    public void setId(long aLong) {
+    }
 
     public Set<Order> getOrders() {
         return orders;

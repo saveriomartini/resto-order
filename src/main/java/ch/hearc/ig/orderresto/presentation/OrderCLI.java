@@ -4,7 +4,8 @@ import ch.hearc.ig.orderresto.business.Customer;
 import ch.hearc.ig.orderresto.business.Order;
 import ch.hearc.ig.orderresto.business.Product;
 import ch.hearc.ig.orderresto.business.Restaurant;
-import ch.hearc.ig.orderresto.persistence.FakeDb;
+//import ch.hearc.ig.orderresto.persistence.FakeDb;
+import ch.hearc.ig.orderresto.persistence.CustomerDataMapper;
 import ch.hearc.ig.orderresto.persistence.OrderDataMapper;
 
 import java.time.LocalDateTime;
@@ -35,7 +36,7 @@ public class OrderCLI extends AbstractCLI {
             customer = customerCLI.getExistingCustomer();
         } else {
             customer = customerCLI.createNewCustomer();
-            FakeDb.addCustomer(customer);
+            CustomerDataMapper.insert(customer);
         }
 
         // Possible improvements:
@@ -49,13 +50,7 @@ public class OrderCLI extends AbstractCLI {
         product.addOrder(order);
         restaurant.addOrder(order);
         customer.addOrder(order);
-        // DATABASE: insert order
-       /* OrderDataMapper orderDataMapper = new OrderDataMapper();
-        try {
-            orderDataMapper.insert(order);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }*/
+
 
         this.ln("Merci pour votre commande!");
 

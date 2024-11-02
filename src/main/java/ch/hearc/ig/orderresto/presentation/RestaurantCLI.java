@@ -1,7 +1,7 @@
 package ch.hearc.ig.orderresto.presentation;
 
 import ch.hearc.ig.orderresto.business.Restaurant;
-import ch.hearc.ig.orderresto.persistence.FakeDb;
+//import ch.hearc.ig.orderresto.persistence.FakeDb;
 import ch.hearc.ig.orderresto.persistence.RestaurantDataMapper;
 
 import java.util.Set;
