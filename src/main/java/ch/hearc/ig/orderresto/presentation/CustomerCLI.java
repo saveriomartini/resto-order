@@ -1,22 +1,23 @@
 package ch.hearc.ig.orderresto.presentation;
 
-import ch.hearc.ig.orderresto.business.Address;
 import ch.hearc.ig.orderresto.business.Customer;
+import ch.hearc.ig.orderresto.persistence.CustomerDataMapper;
+import ch.hearc.ig.orderresto.business.Address;
 import ch.hearc.ig.orderresto.business.OrganizationCustomer;
 import ch.hearc.ig.orderresto.business.PrivateCustomer;
 
-import ch.hearc.ig.orderresto.persistence.CustomerDataMapper;
-import ch.hearc.ig.orderresto.persistence.FakeDb;
-
 public class CustomerCLI extends AbstractCLI {
 
+    private final CustomerDataMapper customerDataMapper;
+
+    public CustomerCLI() {
+        this.customerDataMapper = new CustomerDataMapper();
+    }
+
     public Customer getExistingCustomer() {
-        this.ln("Quelle est votre addresse email?");
+        this.ln("Quelle est votre adresse email?");
         String email = this.readEmailFromUser();
-        return FakeDb.getCustomers().stream()
-                .filter(c -> c.getEmail().equals(email))
-                .findFirst()
-                .orElse(null);
+        return customerDataMapper.findCustomerByEmail(email);
     }
 
     /*public Customer getPrivateCustomerByID(Long id) {
@@ -38,7 +39,7 @@ public class CustomerCLI extends AbstractCLI {
     }*/
 
     public void getCustomerById(Long id) {
-        Customer customer = CustomerDataMapper.findCustomerById(id);
+        Customer customer = customerDataMapper.findCustomerById(id);
         if (customer != null) {
             this.ln("Le client est le suivant : " + customer);
         } else {
@@ -47,7 +48,7 @@ public class CustomerCLI extends AbstractCLI {
     }
 
     public void getCustomerByEmail(String email) {
-        Customer customer = CustomerDataMapper.findCustomerByEmail(email);
+        Customer customer = customerDataMapper.findCustomerByEmail(email);
         if (customer != null) {
             this.ln("Le client est le suivant : " + customer);
         } else {
@@ -85,20 +86,20 @@ public class CustomerCLI extends AbstractCLI {
                 e.printStackTrace();
             }
             return customer;
+        } else {
+            this.ln("Quel est le nom de votre organisation?");
+            String name = this.readStringFromUser();
+            this.ln(String.format("%s est une société anonyme (SA)?, une association (A) ou une fondation (F)?", name));
+            String legalForm = this.readChoicesFromUser(new String[]{"SA", "A", "F"});
+            Address address = (new AddressCLI()).getNewAddress();
+            Customer customer = new OrganizationCustomer(null, phone, email, address, name, legalForm);
+            try {
+                CustomerDataMapper customerDataMapper = new CustomerDataMapper();
+                customerDataMapper.insert(customer);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return customer;
         }
-
-        this.ln("Quel est le nom de votre organisation?");
-        String name = this.readStringFromUser();
-        this.ln(String.format("%s est une société anonyme (SA)?, une association (A) ou une fondation (F)?", name));
-        String legalForm = this.readChoicesFromUser(new String[]{"SA", "A", "F"});
-        Address address = (new AddressCLI()).getNewAddress();
-        Customer customer = new OrganizationCustomer(null, phone, email, address, name, legalForm);
-        try {
-            CustomerDataMapper customerDataMapper = new CustomerDataMapper();
-            customerDataMapper.insert(customer);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return customer;
     }
 }
