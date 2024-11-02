@@ -1,3 +1,4 @@
+/*
 package ch.hearc.ig.orderresto.persistence;
 
 import ch.hearc.ig.orderresto.business.*;
@@ -64,3 +65,4 @@ public class FakeDb {
     }
     
 }
+*/

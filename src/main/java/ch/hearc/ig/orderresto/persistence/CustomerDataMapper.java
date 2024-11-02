@@ -13,10 +13,10 @@ import java.sql.SQLException;
 
 public class CustomerDataMapper {
 
-    public CustomerDataMapper() {
+    public CustomerDataMapper() throws SQLException {
     }
 
-    public Customer findCustomerById(Long id) {
+    public static Customer findCustomerById(Long id) {
         try {
             Connection dbConnect = DbUtils.getConnection();
             try (PreparedStatement ps = dbConnect.prepareStatement("SELECT forme_sociale FROM CLIENT WHERE numero = ?")) {
@@ -25,9 +25,9 @@ public class CustomerDataMapper {
                 if (rs.next()) {
                     String legalForm = rs.getString("forme_sociale");
                     if (legalForm != null) {
-                        return findOrganizationByID(id);
+                        return CustomerDataMapper.findOrganizationByID(id);
                     } else {
-                        return findPrivateByID(id);
+                        return CustomerDataMapper.findPrivateByID(id);
                     }
                 } else {
                     return null;
@@ -39,7 +39,7 @@ public class CustomerDataMapper {
         }
     }
 
-    public Customer findCustomerByEmail(String email) {
+    public static Customer findCustomerByEmail(String email) {
         try {
             Connection dbConnect = DbUtils.getConnection();
             try (PreparedStatement ps = dbConnect.prepareStatement("SELECT * FROM CLIENT WHERE email = ?")) {
@@ -49,9 +49,9 @@ public class CustomerDataMapper {
                     String emailCustomer = rs.getString("email");
                     Long idCustomer = rs.getLong("numero");
                     if (emailCustomer != null) {
-                        return findOrganizationByID(idCustomer);
+                        return CustomerDataMapper.findOrganizationByID(idCustomer);
                     } else {
-                        return findPrivateByID(idCustomer);
+                        return CustomerDataMapper.findPrivateByID(idCustomer);
                     }
                 } else {
                     return null;
@@ -93,7 +93,7 @@ public class CustomerDataMapper {
         return null;
     }
 
-    public Customer findPrivateByID(Long id) throws SQLException {
+    public static Customer findPrivateByID(Long id) throws SQLException {
         Connection dbConnect = DbUtils.getConnection();
         try (PreparedStatement ps = dbConnect.prepareStatement("SELECT * FROM CLIENT WHERE numero = ?")) {
             ps.setLong(1, id);
@@ -124,11 +124,12 @@ public class CustomerDataMapper {
         return null;
     }
 
-    // Coucou de test
-    public void insert(Customer customer) {
+    public static Customer insert(Customer customer) {
         try {
             Connection dbConnect = DbUtils.getConnection();
             try (PreparedStatement ps = dbConnect.prepareStatement("INSERT INTO CLIENT (email, telephone, pays, code_postal, localite, rue, num_rue, nom, forme_sociale, prenom, est_une_femme, type) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)")) {
+
+
                 ps.setString(1, customer.getEmail());
                 ps.setString(2, customer.getPhone());
                 ps.setString(3, customer.getAddress().getCountryCode());
@@ -154,9 +155,18 @@ public class CustomerDataMapper {
                     ps.setString(12, "P");
                 }
                 ps.executeUpdate();
+                try {
+                    ResultSet rs = ps.getGeneratedKeys();
+                    if (rs.next()) {
+                        customer.setId(rs.getLong(1));
+                    }
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        return customer;
     }
 }

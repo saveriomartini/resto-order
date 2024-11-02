@@ -1,23 +1,24 @@
 package ch.hearc.ig.orderresto.presentation;
 
-import ch.hearc.ig.orderresto.business.Customer;
-import ch.hearc.ig.orderresto.persistence.CustomerDataMapper;
 import ch.hearc.ig.orderresto.business.Address;
+import ch.hearc.ig.orderresto.business.Customer;
 import ch.hearc.ig.orderresto.business.OrganizationCustomer;
 import ch.hearc.ig.orderresto.business.PrivateCustomer;
 
+import ch.hearc.ig.orderresto.persistence.CustomerDataMapper;
+//import ch.hearc.ig.orderresto.persistence.FakeDb;
+
 public class CustomerCLI extends AbstractCLI {
 
-    private final CustomerDataMapper customerDataMapper;
-
-    public CustomerCLI() {
-        this.customerDataMapper = new CustomerDataMapper();
-    }
-
     public Customer getExistingCustomer() {
-        this.ln("Quelle est votre adresse email?");
+        this.ln("Quelle est votre addresse email?");
         String email = this.readEmailFromUser();
-        return customerDataMapper.findCustomerByEmail(email);
+        Customer customer = CustomerDataMapper.findCustomerByEmail(email);
+        if (customer != null && customer.getEmail().equals(email)) {
+            return customer;
+        } else {
+            return null;
+        }
     }
 
     /*public Customer getPrivateCustomerByID(Long id) {
@@ -39,7 +40,7 @@ public class CustomerCLI extends AbstractCLI {
     }*/
 
     public void getCustomerById(Long id) {
-        Customer customer = customerDataMapper.findCustomerById(id);
+        Customer customer = CustomerDataMapper.findCustomerById(id);
         if (customer != null) {
             this.ln("Le client est le suivant : " + customer);
         } else {
@@ -48,7 +49,7 @@ public class CustomerCLI extends AbstractCLI {
     }
 
     public void getCustomerByEmail(String email) {
-        Customer customer = customerDataMapper.findCustomerByEmail(email);
+        Customer customer = CustomerDataMapper.findCustomerByEmail(email);
         if (customer != null) {
             this.ln("Le client est le suivant : " + customer);
         } else {
@@ -57,6 +58,7 @@ public class CustomerCLI extends AbstractCLI {
     }
 
     public Customer createNewCustomer() {
+        Customer customer = null;
         this.ln("Êtes-vous un client privé ou une organisation?");
         this.ln("0. Annuler");
         this.ln("1. Un client privé");
@@ -78,28 +80,16 @@ public class CustomerCLI extends AbstractCLI {
             this.ln("Quel est votre nom?");
             String lastName = this.readStringFromUser();
             Address address = (new AddressCLI()).getNewAddress();
-            Customer customer = new PrivateCustomer(null, phone, email, address, gender, firstName, lastName);
-            try {
-                CustomerDataMapper customerDataMapper = new CustomerDataMapper();
-                customerDataMapper.insert(customer);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return customer;
+            customer = new PrivateCustomer(null, phone, email, address, gender, firstName, lastName);
         } else {
             this.ln("Quel est le nom de votre organisation?");
             String name = this.readStringFromUser();
             this.ln(String.format("%s est une société anonyme (SA)?, une association (A) ou une fondation (F)?", name));
             String legalForm = this.readChoicesFromUser(new String[]{"SA", "A", "F"});
             Address address = (new AddressCLI()).getNewAddress();
-            Customer customer = new OrganizationCustomer(null, phone, email, address, name, legalForm);
-            try {
-                CustomerDataMapper customerDataMapper = new CustomerDataMapper();
-                customerDataMapper.insert(customer);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return customer;
+            customer = new OrganizationCustomer(null, phone, email, address, name, legalForm);
         }
+
+        return customer;
     }
 }
