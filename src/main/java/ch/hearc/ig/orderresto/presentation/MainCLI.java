@@ -17,9 +17,7 @@ public class MainCLI extends AbstractCLI {
         this.ln("0. Quitter l'application");
         this.ln("1. Faire une nouvelle commande");
         this.ln("2. Consulter une commande");
-        this.ln("3. Rechercher un client par ID");
-        this.ln("4. Rechercher un client par email");
-        int userChoice = this.readIntFromUser(4);
+        int userChoice = this.readIntFromUser(2);
         this.handleUserChoice(userChoice);
     }
 
@@ -42,11 +40,6 @@ public class MainCLI extends AbstractCLI {
             this.ln("Entrez l'ID du client :");
             Long id = this.readLongFromUser();
             customerCLI.getCustomerById(id);
-        } else if (userChoice == 4) {
-            CustomerCLI customerCLI = new CustomerCLI();
-            this.ln("Entrez l'email du client :");
-            String email = this.readStringFromUser(1, 255, null);
-            customerCLI.getCustomerByEmail(email);
         }
         this.run();
     }
