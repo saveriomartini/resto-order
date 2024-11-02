@@ -16,6 +16,7 @@ public class CustomerDataMapper {
     public CustomerDataMapper() throws SQLException {
     }
 
+    // Test commit
     public static Customer findCustomerById(Long id) {
         try {
             Connection dbConnect = DbUtils.getConnection();
