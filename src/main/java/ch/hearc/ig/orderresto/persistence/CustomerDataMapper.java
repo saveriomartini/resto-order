@@ -124,8 +124,6 @@ public class CustomerDataMapper {
         return null;
     }
 
-    // Coucou de test
-    public void insert(Customer customer) {
         try {
             Connection dbConnect = DbUtils.getConnection();
             try (PreparedStatement ps = dbConnect.prepareStatement("INSERT INTO CLIENT (email, telephone, pays, code_postal, localite, rue, num_rue, nom, forme_sociale, prenom, est_une_femme, type) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)")) {

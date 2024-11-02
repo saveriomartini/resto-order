@@ -64,6 +64,10 @@ public class OrderCLI extends AbstractCLI {
 
     public Order selectOrder() {
         Customer customer = (new CustomerCLI()).getExistingCustomer();
+        if (customer == null) {
+            this.ln(String.format("Désolé, nous ne connaissons pas cette personne."));
+            return null;
+        }
         Object[] orders = customer.getOrders().toArray();
         if (orders.length == 0) {
             this.ln(String.format("Désolé, il n'y a aucune commande pour %s", customer.getEmail()));
