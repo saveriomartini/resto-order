@@ -146,7 +146,11 @@ public class CustomerDataMapper {
                     ps.setString(8, ((PrivateCustomer) customer).getLastName());
                     ps.setString(9, null);
                     ps.setString(10, ((PrivateCustomer) customer).getFirstName());
-                    ps.setString(11, ((PrivateCustomer) customer).getGender().equals("H") ? "N" : "O");
+                    if (((PrivateCustomer) customer).getGender() == "H") {
+                        ps.setString(11, "N");
+                    } else {
+                        ps.setString(11, "O");
+                    }
                     ps.setString(12, "P");
                 }
                 ps.executeUpdate();
@@ -156,6 +160,8 @@ public class CustomerDataMapper {
                         customer.setId(rs.getLong(1));
                         System.out.println("Customer inserted with id: " + customer.getId());
                     }
+                } catch (SQLException e) {
+                    e.printStackTrace();
                 }
             }
         } catch (SQLException e) {
