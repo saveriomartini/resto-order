@@ -8,12 +8,13 @@ import ch.hearc.ig.orderresto.business.Restaurant;
 import ch.hearc.ig.orderresto.persistence.CustomerDataMapper;
 import ch.hearc.ig.orderresto.persistence.OrderDataMapper;
 
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class OrderCLI extends AbstractCLI {
 
-    public Order createNewOrder() {
+    public Order createNewOrder() throws SQLException {
 
         this.ln("======================================================");
         Restaurant restaurant = (new RestaurantCLI()).getExistingRestaurant();
