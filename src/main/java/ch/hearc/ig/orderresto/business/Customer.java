@@ -31,6 +31,10 @@ public abstract class Customer {
         return email;
     }
 
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public Set<Order> getOrders() {
         return orders;
     }

@@ -57,4 +57,8 @@ public class Order {
         this.products.add(product);
         this.totalAmount = this.totalAmount.add(product.getUnitPrice());
     }
+
+    public void setId(long aLong) {
+        this.id = aLong;
+    }
 }

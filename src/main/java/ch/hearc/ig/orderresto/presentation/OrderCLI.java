@@ -4,19 +4,19 @@ import ch.hearc.ig.orderresto.business.Customer;
 import ch.hearc.ig.orderresto.business.Order;
 import ch.hearc.ig.orderresto.business.Product;
 import ch.hearc.ig.orderresto.business.Restaurant;
-import ch.hearc.ig.orderresto.persistence.FakeDb;
+//import ch.hearc.ig.orderresto.persistence.FakeDb;
+import ch.hearc.ig.orderresto.persistence.CustomerDataMapper;
 import ch.hearc.ig.orderresto.persistence.OrderDataMapper;
 
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class OrderCLI extends AbstractCLI {
 
-    public Order createNewOrder() {
-
+    public Order createNewOrder() throws SQLException {
         this.ln("======================================================");
         Restaurant restaurant = (new RestaurantCLI()).getExistingRestaurant();
-
         Product product = (new ProductCLI()).getRestaurantProduct(restaurant);
 
         this.ln("======================================================");
@@ -31,31 +31,24 @@ public class OrderCLI extends AbstractCLI {
         }
         CustomerCLI customerCLI = new CustomerCLI();
         Customer customer = null;
+        CustomerDataMapper customerDataMapper = new CustomerDataMapper();
         if (userChoice == 1) {
             customer = customerCLI.getExistingCustomer();
         } else {
             customer = customerCLI.createNewCustomer();
-            FakeDb.addCustomer(customer);
+            customerDataMapper.insert(customer);
         }
 
-        // Possible improvements:
-        // - ask whether it's a takeAway order or not?
-        // - Ask user for multiple products?
         Order order = new Order(null, customer, restaurant, false, LocalDateTime.now());
         order.addProduct(product);
 
+        OrderDataMapper orderDataMapper = new OrderDataMapper();
+        orderDataMapper.insertOrder(order);
+        orderDataMapper.insertOrderProducts(order);
 
-        // Actually place the order (this could/should be in a different method?)
         product.addOrder(order);
         restaurant.addOrder(order);
         customer.addOrder(order);
-        // DATABASE: insert order
-       /* OrderDataMapper orderDataMapper = new OrderDataMapper();
-        try {
-            orderDataMapper.insert(order);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }*/
 
         this.ln("Merci pour votre commande!");
 
