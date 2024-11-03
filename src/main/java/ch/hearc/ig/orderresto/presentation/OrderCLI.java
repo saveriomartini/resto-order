@@ -11,6 +11,7 @@ import ch.hearc.ig.orderresto.persistence.OrderDataMapper;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Set;
 
 public class OrderCLI extends AbstractCLI {
 
@@ -55,7 +56,7 @@ public class OrderCLI extends AbstractCLI {
         return order;
     }
 
-    public Order selectOrder() {
+    /*public Order selectOrder() {
         Customer customer = (new CustomerCLI()).getExistingCustomer();
         if (customer == null) {
             this.ln(String.format("Désolé, nous ne connaissons pas cette personne."));
@@ -85,6 +86,38 @@ public class OrderCLI extends AbstractCLI {
         for (Product product: order.getProducts()) {
             this.ln(String.format("%d. %s", index, product));
             index++;
+        }
+    }*/
+
+    public Product getPriceFromProduct(Order order) {
+        this.ln("Choisissez un produit:");
+        Object[] products = order.getProducts().toArray();
+        for (int i = 0 ; i < products.length ; i++) {
+            Product product = (Product) products[i];
+            this.ln(String.format("%d. %s", i, product));
+        }
+        int index = this.readIntFromUser(products.length - 1);
+        return (Product) products[index];
+    }
+
+    public void displayOrders() throws SQLException {
+        Customer customer = (new CustomerCLI()).getExistingCustomer();
+        if (customer == null) {
+            this.ln("Désolé, nous ne connaissons pas cette personne.");
+            return;
+        }
+
+        Set<Order> allOrders = new OrderDataMapper().findAllOrdersByCustomer(customer);
+        if (allOrders.isEmpty()) {
+            this.ln(String.format("Désolé, il n'y a aucune commande pour %s", customer.getEmail()));
+            return;
+        }
+
+        this.ln("Voici les commandes pour " + customer.getEmail() + ":");
+        for (Order order : allOrders) {
+            LocalDateTime when = order.getWhen();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy à HH:mm");
+            this.ln(String.format("Commande %.2f, le %s chez %s.", order.getTotalAmount(), when.format(formatter), order.getRestaurant().getName()));
         }
     }
 }
