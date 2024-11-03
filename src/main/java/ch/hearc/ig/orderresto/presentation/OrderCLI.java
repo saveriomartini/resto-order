@@ -90,17 +90,6 @@ public class OrderCLI extends AbstractCLI {
         }
     }*/
 
-    public Product getPriceFromProduct(Order order) {
-        this.ln("Choisissez un produit:");
-        Object[] products = order.getProducts().toArray();
-        for (int i = 0 ; i < products.length ; i++) {
-            Product product = (Product) products[i];
-            this.ln(String.format("%d. %s", i, product));
-        }
-        int index = this.readIntFromUser(products.length - 1);
-        return (Product) products[index];
-    }
-
     public void displayOrders() throws SQLException {
         Customer customer = (new CustomerCLI()).getExistingCustomer();
         if (customer == null) {
