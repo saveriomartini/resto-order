@@ -21,11 +21,11 @@ public class OrganizationCustomer extends Customer {
 
     @Override
     public String toString() {
-        return "ID No. " + getId() +
-               ", Entreprise" +
+        return "ID No. " + getId() ;
+               /*", Entreprise" +
                ", Nom : '" + name + " " + legalForm + '\'' +
                ", Addresse : " + getAddress() +
                ", Telephone : '" + getPhone() + '\'' +
-               ", Email : '" + getEmail() + '\'';
+               ", Email : '" + getEmail() + '\'';*/
     }
 }

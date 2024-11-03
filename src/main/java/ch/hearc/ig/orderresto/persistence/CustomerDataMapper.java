@@ -16,6 +16,23 @@ public class CustomerDataMapper {
     public CustomerDataMapper() throws SQLException {
     }
 
+    public Customer receivedId(String email) {
+        try {
+            Connection dbConnect = DbUtils.getConnection();
+            try (PreparedStatement ps = dbConnect.prepareStatement("SELECT numero FROM CLIENT WHERE email = ?")) {
+                ps.setString(1, email);
+                ResultSet rs = ps.executeQuery();
+                if (rs.next()) {
+                    return findCustomerById(rs.getLong("numero"));
+                } else {
+                    return null;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
     public Customer findCustomerById(Long id) {
         try {
             Connection dbConnect = DbUtils.getConnection();
@@ -154,15 +171,15 @@ public class CustomerDataMapper {
                     ps.setString(12, "P");
                 }
                 ps.executeUpdate();
-
-                try (ResultSet rs = ps.getGeneratedKeys()) {
+                Customer id = receivedId(customer.getEmail());
+                System.out.println("Ce foutu ID de merde est : " + id);
+                /*try (ResultSet rs = ps.getGeneratedKeys()) {
                     if (rs.next()) {
                         customer.setId(rs.getLong(1));
-                        System.out.println("Customer inserted with id: " + customer.getId());
                     }
                 } catch (SQLException e) {
                     e.printStackTrace();
-                }
+                }*/
             }
         } catch (SQLException e) {
             e.printStackTrace();
