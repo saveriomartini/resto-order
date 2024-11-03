@@ -13,9 +13,6 @@ import java.sql.SQLException;
 
 public class CustomerDataMapper {
 
-    public CustomerDataMapper() throws SQLException {
-    }
-
     public Customer findCustomerById(Long id) {
         try {
             Connection dbConnect = DbUtils.getConnection();
@@ -128,7 +125,7 @@ public class CustomerDataMapper {
         try {
             Connection dbConnect = DbUtils.getConnection();
             String sql = "INSERT INTO CLIENT (email, telephone, pays, code_postal, localite, rue, num_rue, nom, forme_sociale, prenom, est_une_femme, type) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)";
-            try (PreparedStatement ps = dbConnect.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
+            try (PreparedStatement ps = dbConnect.prepareStatement(sql, new String[] {"numero"})) {
                 ps.setString(1, customer.getEmail());
                 ps.setString(2, customer.getPhone());
                 ps.setString(3, customer.getAddress().getCountryCode());
@@ -139,18 +136,14 @@ public class CustomerDataMapper {
                 if (customer instanceof OrganizationCustomer) {
                     ps.setString(8, ((OrganizationCustomer) customer).getName());
                     ps.setString(9, ((OrganizationCustomer) customer).getLegalForm());
-                    ps.setString(10, null);
-                    ps.setString(11, null);
+                    ps.setNull(10, java.sql.Types.VARCHAR);
+                    ps.setNull(11, java.sql.Types.CHAR);
                     ps.setString(12, "O");
                 } else {
                     ps.setString(8, ((PrivateCustomer) customer).getLastName());
-                    ps.setString(9, null);
+                    ps.setNull(9, java.sql.Types.VARCHAR);
                     ps.setString(10, ((PrivateCustomer) customer).getFirstName());
-                    if (((PrivateCustomer) customer).getGender() == "H") {
-                        ps.setString(11, "N");
-                    } else {
-                        ps.setString(11, "O");
-                    }
+                    ps.setString(11, ((PrivateCustomer) customer).getGender().equals("H") ? "N" : "O");
                     ps.setString(12, "P");
                 }
                 ps.executeUpdate();
@@ -160,8 +153,6 @@ public class CustomerDataMapper {
                         customer.setId(rs.getLong(1));
                         System.out.println("Customer inserted with id: " + customer.getId());
                     }
-                } catch (SQLException e) {
-                    e.printStackTrace();
                 }
             }
         } catch (SQLException e) {

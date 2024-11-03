@@ -31,24 +31,6 @@ public class CustomerCLI extends AbstractCLI {
         }
     }
 
-    /*public Customer getPrivateCustomerByID(Long id) {
-        try {
-            return CustomerDataMapper.findPrivateByID(id);
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    public Customer getOrganizationCustomerById(Long id) {
-        try {
-            return CustomerDataMapper.findOrganizationByID(id);
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }*/
-
     public void getCustomerById(Long id) {
         Customer customer = customerDataMapper.findCustomerById(id);
         if (customer != null) {

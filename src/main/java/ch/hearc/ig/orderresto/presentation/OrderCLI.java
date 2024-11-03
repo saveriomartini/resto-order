@@ -15,10 +15,8 @@ import java.time.format.DateTimeFormatter;
 public class OrderCLI extends AbstractCLI {
 
     public Order createNewOrder() throws SQLException {
-
         this.ln("======================================================");
         Restaurant restaurant = (new RestaurantCLI()).getExistingRestaurant();
-
         Product product = (new ProductCLI()).getRestaurantProduct(restaurant);
 
         this.ln("======================================================");
@@ -41,18 +39,16 @@ public class OrderCLI extends AbstractCLI {
             customerDataMapper.insert(customer);
         }
 
-        // Possible improvements:
-        // - ask whether it's a takeAway order or not?
-        // - Ask user for multiple products?
         Order order = new Order(null, customer, restaurant, false, LocalDateTime.now());
         order.addProduct(product);
 
+        OrderDataMapper orderDataMapper = new OrderDataMapper();
+        orderDataMapper.insertOrder(order);
+        orderDataMapper.insertOrderProducts(order);
 
-        // Actually place the order (this could/should be in a different method?)
         product.addOrder(order);
         restaurant.addOrder(order);
         customer.addOrder(order);
-
 
         this.ln("Merci pour votre commande!");
 

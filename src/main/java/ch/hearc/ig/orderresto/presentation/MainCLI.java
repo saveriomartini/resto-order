@@ -26,10 +26,7 @@ public class MainCLI extends AbstractCLI {
         }
         OrderCLI orderCLI = new OrderCLI();
         if (userChoice == 1) {
-            Order newOrder = orderCLI.createNewOrder();
-            OrderDataMapper odm = new OrderDataMapper();
-            odm.insert(newOrder);
-            orderCLI.displayOrder(newOrder);
+            orderCLI.createNewOrder();
         } else {
             Order existingOrder = orderCLI.selectOrder();
             if (existingOrder != null) {
