@@ -12,7 +12,7 @@ public class RestaurantCLI extends AbstractCLI {
         this.ln("Choisissez un restaurant:");
         RestaurantDataMapper restaurantDataMapper = new RestaurantDataMapper();
         Set<Restaurant> allRestaurants = restaurantDataMapper.getAllRestaurants();
-         Object [] allRestaurantsArray = allRestaurants.toArray();
+        Object [] allRestaurantsArray = allRestaurants.toArray();
         for (int i = 0 ; i < allRestaurantsArray.length ; i++) {
             Restaurant restaurant = (Restaurant) allRestaurantsArray[i];
             this.ln(String.format("%d. %s.", i, restaurant.getName()));

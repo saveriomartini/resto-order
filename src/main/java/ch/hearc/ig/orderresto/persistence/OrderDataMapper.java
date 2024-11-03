@@ -60,8 +60,8 @@ public class OrderDataMapper {
     public Set<Order> findAllOrdersByCustomer(Customer customer) throws SQLException {
         Connection db = DbUtils.getConnection();
         try (PreparedStatement dbStatement = db.prepareStatement(
-                     "SELECT * FROM COMMANDE WHERE fk_client = ?"
-             )) {
+                "SELECT * FROM COMMANDE WHERE fk_client = ?"
+        )) {
             dbStatement.setLong(1, customer.getId());
             ResultSet dbResult = dbStatement.executeQuery();
             Set<Order> ordersFound = new HashSet<>();
@@ -89,5 +89,3 @@ public class OrderDataMapper {
 
 
 }
-
-
