@@ -5,6 +5,8 @@ import ch.hearc.ig.orderresto.business.Order;
 import ch.hearc.ig.orderresto.business.Product;
 import ch.hearc.ig.orderresto.business.Restaurant;
 import ch.hearc.ig.orderresto.service.DbUtils;
+import oracle.jdbc.OraclePreparedStatement;
+import oracle.jdbc.OracleTypes;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -19,18 +21,20 @@ public class OrderDataMapper {
     public Order insertOrder(Order order) {
         try {
             Connection dbConnect = DbUtils.getConnection();
-            String sql = "INSERT INTO COMMANDE (FK_client, FK_resto, A_emporter, Quand) VALUES (?, ?, ?, ?)";
-            try (PreparedStatement ps = dbConnect.prepareStatement(sql, new String[] {"numero"})) {
+            String sql = "INSERT INTO COMMANDE (FK_client, FK_resto, A_emporter, Quand) VALUES (?, ?, ?, ?) RETURNING numero INTO ?";
+            try (OraclePreparedStatement ps = (OraclePreparedStatement) dbConnect.prepareStatement(sql)) {
                 ps.setLong(1, order.getCustomer().getId());
                 ps.setLong(2, order.getRestaurant().getId());
                 ps.setString(3, order.getTakeAway() ? "O" : "N");
                 ps.setTimestamp(4, java.sql.Timestamp.valueOf(order.getWhen()));
+                ps.registerReturnParameter(5, OracleTypes.NUMBER);
                 ps.executeUpdate();
 
-                try (ResultSet rs = ps.getGeneratedKeys()) {
+                try (ResultSet rs = ps.getReturnResultSet()) {
                     if (rs.next()) {
+
                         order.setId(rs.getLong(1));
-                        System.out.println("Order inserted with id: " + order.getId());
+                        System.out.println("Order id: " + order.getId());
                     }
                 }
             }
