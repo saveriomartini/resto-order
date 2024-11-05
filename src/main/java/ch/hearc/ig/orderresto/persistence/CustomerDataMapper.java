@@ -5,11 +5,11 @@ import ch.hearc.ig.orderresto.business.Customer;
 import ch.hearc.ig.orderresto.business.OrganizationCustomer;
 import ch.hearc.ig.orderresto.business.PrivateCustomer;
 import ch.hearc.ig.orderresto.service.DbUtils;
+import oracle.jdbc.OraclePreparedStatement;
+import oracle.jdbc.OracleType;
+import oracle.jdbc.OracleTypes;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 
 public class CustomerDataMapper {
 
@@ -121,11 +121,13 @@ public class CustomerDataMapper {
         return null;
     }
 
-    public Customer insert(Customer customer) {
+    public Long insert(Customer customer) {
+
+        long idCustomer = -1;
         try {
             Connection dbConnect = DbUtils.getConnection();
-            String sql = "INSERT INTO CLIENT (email, telephone, pays, code_postal, localite, rue, num_rue, nom, forme_sociale, prenom, est_une_femme, type) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)";
-            try (PreparedStatement ps = dbConnect.prepareStatement(sql, new String[] {"numero"})) {
+            String sql = "INSERT INTO CLIENT (email, telephone, pays, code_postal, localite, rue, num_rue, nom, forme_sociale, prenom, est_une_femme, type) VALUES (?,?,?,?,?,?,?,?,?,?,?,?) returning numero into ?";
+            try (OraclePreparedStatement ps = (OraclePreparedStatement) dbConnect.prepareStatement(sql)) {
                 ps.setString(1, customer.getEmail());
                 ps.setString(2, customer.getPhone());
                 ps.setString(3, customer.getAddress().getCountryCode());
@@ -136,28 +138,28 @@ public class CustomerDataMapper {
                 if (customer instanceof OrganizationCustomer) {
                     ps.setString(8, ((OrganizationCustomer) customer).getName());
                     ps.setString(9, ((OrganizationCustomer) customer).getLegalForm());
-                    ps.setNull(10, java.sql.Types.VARCHAR);
-                    ps.setNull(11, java.sql.Types.CHAR);
+                    ps.setNull(10, Types.VARCHAR);
+                    ps.setNull(11, Types.CHAR);
                     ps.setString(12, "O");
                 } else {
                     ps.setString(8, ((PrivateCustomer) customer).getLastName());
-                    ps.setNull(9, java.sql.Types.VARCHAR);
+                    ps.setNull(9, Types.VARCHAR);
                     ps.setString(10, ((PrivateCustomer) customer).getFirstName());
                     ps.setString(11, ((PrivateCustomer) customer).getGender().equals("H") ? "N" : "O");
                     ps.setString(12, "P");
                 }
+                ps.registerReturnParameter(13, OracleTypes.NUMBER);
                 ps.executeUpdate();
-
-                try (ResultSet rs = ps.getGeneratedKeys()) {
+                try (ResultSet rs = ps.getReturnResultSet()) {
                     if (rs.next()) {
-                        customer.setId(rs.getLong(1));
-                        System.out.println("Customer inserted with id: " + customer.getId());
+                        idCustomer = rs.getLong(1);
+                        System.out.println("Customer inserted with id: " + idCustomer);
                     }
                 }
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return customer;
+        return idCustomer;
     }
 }
