@@ -121,9 +121,7 @@ public class CustomerDataMapper {
         return null;
     }
 
-    public Long insert(Customer customer) {
-
-        long idCustomer = -1;
+    public Customer insert(Customer customer) {
         try {
             Connection dbConnect = DbUtils.getConnection();
             String sql = "INSERT INTO CLIENT (email, telephone, pays, code_postal, localite, rue, num_rue, nom, forme_sociale, prenom, est_une_femme, type) VALUES (?,?,?,?,?,?,?,?,?,?,?,?) returning numero into ?";
@@ -152,14 +150,13 @@ public class CustomerDataMapper {
                 ps.executeUpdate();
                 try (ResultSet rs = ps.getReturnResultSet()) {
                     if (rs.next()) {
-                        idCustomer = rs.getLong(1);
-                        System.out.println("Customer inserted with id: " + idCustomer);
+                        customer.setId(rs.getLong(1));
                     }
                 }
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return idCustomer;
+        return customer;
     }
 }

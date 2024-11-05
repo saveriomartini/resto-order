@@ -37,9 +37,8 @@ public class OrderCLI extends AbstractCLI {
             customer = customerCLI.getExistingCustomer();
         } else {
             customer = customerCLI.createNewCustomer();
-            Long idCostumer = customerDataMapper.insert(customer);
-            customer.setId(idCostumer);
-
+            customerDataMapper.insert(customer);
+            System.out.println("Nouveau client créé : " + customer.getId());
         }
 
         Order order = new Order(null, customer, restaurant, false, LocalDateTime.now());
