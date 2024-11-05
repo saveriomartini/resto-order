@@ -31,7 +31,7 @@ public class CustomerCLI extends AbstractCLI {
         }
     }
 
-    /*public void getCustomerById(Long id) {
+    public void getCustomerById(Long id) {
         Customer customer = customerDataMapper.findCustomerById(id);
         if (customer != null) {
             this.ln("Le client est le suivant : " + customer);
@@ -47,7 +47,7 @@ public class CustomerCLI extends AbstractCLI {
         } else {
             this.ln("Client non trouvé.");
         }
-    }*/
+    }
 
     public Customer createNewCustomer() {
         Customer customer = null;

@@ -11,14 +11,13 @@ import ch.hearc.ig.orderresto.persistence.OrderDataMapper;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Set;
 
 public class OrderCLI extends AbstractCLI {
 
     public Order createNewOrder() throws SQLException {
-
         this.ln("======================================================");
         Restaurant restaurant = (new RestaurantCLI()).getExistingRestaurant();
-
         Product product = (new ProductCLI()).getRestaurantProduct(restaurant);
 
         this.ln("======================================================");
@@ -38,28 +37,28 @@ public class OrderCLI extends AbstractCLI {
             customer = customerCLI.getExistingCustomer();
         } else {
             customer = customerCLI.createNewCustomer();
-            customerDataMapper.insert(customer);
+            Long idCostumer = customerDataMapper.insert(customer);
+            customer.setId(idCostumer);
+
         }
 
-        // Possible improvements:
-        // - ask whether it's a takeAway order or not?
-        // - Ask user for multiple products?
         Order order = new Order(null, customer, restaurant, false, LocalDateTime.now());
         order.addProduct(product);
 
+        OrderDataMapper orderDataMapper = new OrderDataMapper();
+        orderDataMapper.insertOrder(order);
+        orderDataMapper.insertOrderProducts(order);
 
-        // Actually place the order (this could/should be in a different method?)
         product.addOrder(order);
         restaurant.addOrder(order);
         customer.addOrder(order);
-
 
         this.ln("Merci pour votre commande!");
 
         return order;
     }
 
-    public Order selectOrder() {
+    /*public Order selectOrder() {
         Customer customer = (new CustomerCLI()).getExistingCustomer();
         if (customer == null) {
             this.ln(String.format("Désolé, nous ne connaissons pas cette personne."));
@@ -89,6 +88,27 @@ public class OrderCLI extends AbstractCLI {
         for (Product product: order.getProducts()) {
             this.ln(String.format("%d. %s", index, product));
             index++;
+        }
+    }*/
+
+    public void displayOrders() throws SQLException {
+        Customer customer = (new CustomerCLI()).getExistingCustomer();
+        if (customer == null) {
+            this.ln("Désolé, nous ne connaissons pas cette personne.");
+            return;
+        }
+
+        Set<Order> allOrders = new OrderDataMapper().findAllOrdersByCustomer(customer);
+        if (allOrders.isEmpty()) {
+            this.ln(String.format("Désolé, il n'y a aucune commande pour %s", customer.getEmail()));
+            return;
+        }
+
+        this.ln("Voici les commandes pour " + customer.getEmail() + ":");
+        for (Order order : allOrders) {
+            LocalDateTime when = order.getWhen();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy à HH:mm");
+            this.ln(String.format("Commande %.2f, le %s chez %s.", order.getTotalAmount(), when.format(formatter), order.getRestaurant().getName()));
         }
     }
 }

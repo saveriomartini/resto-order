@@ -5,34 +5,14 @@ import ch.hearc.ig.orderresto.business.Customer;
 import ch.hearc.ig.orderresto.business.OrganizationCustomer;
 import ch.hearc.ig.orderresto.business.PrivateCustomer;
 import ch.hearc.ig.orderresto.service.DbUtils;
+import oracle.jdbc.OraclePreparedStatement;
+import oracle.jdbc.OracleType;
+import oracle.jdbc.OracleTypes;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 
 public class CustomerDataMapper {
 
-    public CustomerDataMapper() throws SQLException {
-    }
-
-    public Customer receivedId(String email) {
-        try {
-            Connection dbConnect = DbUtils.getConnection();
-            try (PreparedStatement ps = dbConnect.prepareStatement("SELECT numero FROM CLIENT WHERE email = ?")) {
-                ps.setString(1, email);
-                ResultSet rs = ps.executeQuery();
-                if (rs.next()) {
-                    return findCustomerById(rs.getLong("numero"));
-                } else {
-                    return null;
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
     public Customer findCustomerById(Long id) {
         try {
             Connection dbConnect = DbUtils.getConnection();
@@ -141,11 +121,13 @@ public class CustomerDataMapper {
         return null;
     }
 
-    public Customer insert(Customer customer) {
+    public Long insert(Customer customer) {
+
+        long idCustomer = -1;
         try {
             Connection dbConnect = DbUtils.getConnection();
-            String sql = "INSERT INTO CLIENT (email, telephone, pays, code_postal, localite, rue, num_rue, nom, forme_sociale, prenom, est_une_femme, type) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)";
-            try (PreparedStatement ps = dbConnect.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
+            String sql = "INSERT INTO CLIENT (email, telephone, pays, code_postal, localite, rue, num_rue, nom, forme_sociale, prenom, est_une_femme, type) VALUES (?,?,?,?,?,?,?,?,?,?,?,?) returning numero into ?";
+            try (OraclePreparedStatement ps = (OraclePreparedStatement) dbConnect.prepareStatement(sql)) {
                 ps.setString(1, customer.getEmail());
                 ps.setString(2, customer.getPhone());
                 ps.setString(3, customer.getAddress().getCountryCode());
@@ -156,34 +138,28 @@ public class CustomerDataMapper {
                 if (customer instanceof OrganizationCustomer) {
                     ps.setString(8, ((OrganizationCustomer) customer).getName());
                     ps.setString(9, ((OrganizationCustomer) customer).getLegalForm());
-                    ps.setString(10, null);
-                    ps.setString(11, null);
+                    ps.setNull(10, Types.VARCHAR);
+                    ps.setNull(11, Types.CHAR);
                     ps.setString(12, "O");
                 } else {
                     ps.setString(8, ((PrivateCustomer) customer).getLastName());
-                    ps.setString(9, null);
+                    ps.setNull(9, Types.VARCHAR);
                     ps.setString(10, ((PrivateCustomer) customer).getFirstName());
-                    if (((PrivateCustomer) customer).getGender() == "H") {
-                        ps.setString(11, "N");
-                    } else {
-                        ps.setString(11, "O");
-                    }
+                    ps.setString(11, ((PrivateCustomer) customer).getGender().equals("H") ? "N" : "O");
                     ps.setString(12, "P");
                 }
+                ps.registerReturnParameter(13, OracleTypes.NUMBER);
                 ps.executeUpdate();
-                Customer id = receivedId(customer.getEmail());
-                System.out.println("Ce foutu ID de merde est : " + id);
-                /*try (ResultSet rs = ps.getGeneratedKeys()) {
+                try (ResultSet rs = ps.getReturnResultSet()) {
                     if (rs.next()) {
-                        customer.setId(rs.getLong(1));
+                        idCustomer = rs.getLong(1);
+                        System.out.println("Customer inserted with id: " + idCustomer);
                     }
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }*/
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return customer;
+        return idCustomer;
     }
 }
