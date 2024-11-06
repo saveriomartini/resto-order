@@ -44,7 +44,7 @@ public class RestaurantDataMapper {
 
     public Set<Restaurant>getAllRestaurants() {
 
-            Set<Restaurant> restaurants = new HashSet<>();
+        Set<Restaurant> restaurants = new HashSet<>();
         try {
             Connection connection = DbUtils.getConnection();
             java.sql.PreparedStatement statement = connection.prepareStatement("SELECT * FROM restaurant");
