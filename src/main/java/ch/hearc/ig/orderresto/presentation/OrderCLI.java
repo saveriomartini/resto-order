@@ -1,9 +1,6 @@
 package ch.hearc.ig.orderresto.presentation;
 
-import ch.hearc.ig.orderresto.business.Customer;
-import ch.hearc.ig.orderresto.business.Order;
-import ch.hearc.ig.orderresto.business.Product;
-import ch.hearc.ig.orderresto.business.Restaurant;
+import ch.hearc.ig.orderresto.business.*;
 //import ch.hearc.ig.orderresto.persistence.FakeDb;
 import ch.hearc.ig.orderresto.persistence.CustomerDataMapper;
 import ch.hearc.ig.orderresto.persistence.OrderDataMapper;
@@ -30,14 +27,14 @@ public class OrderCLI extends AbstractCLI {
             return null;
         }
         CustomerCLI customerCLI = new CustomerCLI();
-        Customer customer = null;
+
+        Customer customer;
         CustomerDataMapper customerDataMapper = new CustomerDataMapper();
         if (userChoice == 1) {
             customer = customerCLI.getExistingCustomer();
         } else {
             customer = customerCLI.createNewCustomer();
-            Long idCostumer = customerDataMapper.insert(customer);
-            customer.setId(idCostumer);
+            customerDataMapper.insert(customer);
 
         }
 
@@ -69,6 +66,8 @@ public class OrderCLI extends AbstractCLI {
             return null;
         }
         this.ln("Choisissez une commande:");
+        PrivateCustomer privateCustomer = (PrivateCustomer) customer;
+        System.out.println(privateCustomer.getFirstName()+" et "+privateCustomer.getLastName());
         for (int i = 0 ; i < orders.length ; i++) {
             Order order = (Order) orders[i];
             LocalDateTime when = order.getWhen();

@@ -81,13 +81,7 @@ public class OrderDataMapper {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-
-
-
     }
-
-
-
 }
 
 

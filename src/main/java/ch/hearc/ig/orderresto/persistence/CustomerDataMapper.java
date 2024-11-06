@@ -12,7 +12,12 @@ import java.sql.*;
 
 public class CustomerDataMapper {
 
+    private IdentityMap<Customer> identityMapCustomer = new IdentityMap<>();
+
     public Customer findCustomerById(Long id) {
+        if (identityMapCustomer.contains(id)) {
+            return identityMapCustomer.get(id);
+        }
         try {
             Connection dbConnect = DbUtils.getConnection();
             try (PreparedStatement ps = dbConnect.prepareStatement("SELECT forme_sociale FROM CLIENT WHERE numero = ?")) {
@@ -20,11 +25,14 @@ public class CustomerDataMapper {
                 ResultSet rs = ps.executeQuery();
                 if (rs.next()) {
                     String legalForm = rs.getString("forme_sociale");
+                    Customer customer;
                     if (legalForm != null) {
-                        return findOrganizationByID(id);
+                        customer= findOrganizationByID(id);
                     } else {
-                        return findPrivateByID(id);
+                        customer = findPrivateByID(id);
                     }
+                    identityMapCustomer.put(id, customer);
+                    return customer;
                 } else {
                     return null;
                 }
@@ -43,23 +51,30 @@ public class CustomerDataMapper {
                 ResultSet rs = ps.executeQuery();
                 if (rs.next()) {
                     Long idCustomer = rs.getLong("numero");
-                    String legalForm = rs.getString("forme_sociale");
-                    if (legalForm != null) {
-                        return findOrganizationByID(idCustomer);
-                    } else {
-                        return findPrivateByID(idCustomer);
+                    if (identityMapCustomer.contains(idCustomer)) {
+                        return identityMapCustomer.get(idCustomer);
                     }
+                    String legalForm = rs.getString("forme_sociale");
+                    Customer customer;
+                    if (legalForm != null) {
+                        customer= findOrganizationByID(idCustomer);
+                    } else {
+                        customer= findPrivateByID(idCustomer);
+                    }
+                    identityMapCustomer.put(idCustomer, customer);
+                    return customer;
                 } else {
                     return null;
                 }
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            return null;
         }
+        return null;
     }
 
     public Customer findOrganizationByID(Long id) throws SQLException {
+
         Connection dbConnect = DbUtils.getConnection();
         try (PreparedStatement ps = dbConnect.prepareStatement("SELECT * FROM CLIENT WHERE numero = ?")) {
             ps.setLong(1, id);
@@ -152,6 +167,8 @@ public class CustomerDataMapper {
                 try (ResultSet rs = ps.getReturnResultSet()) {
                     if (rs.next()) {
                         idCustomer = rs.getLong(1);
+                        customer.setId(idCustomer);
+                        identityMapCustomer.put(idCustomer, customer);
                         System.out.println("Customer inserted with id: " + idCustomer);
                     }
                 }
