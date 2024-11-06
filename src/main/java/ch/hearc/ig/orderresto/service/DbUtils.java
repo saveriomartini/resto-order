@@ -6,11 +6,23 @@ import java.sql.SQLException;
 import java.sql.Wrapper;
 
 public class DbUtils {
-    public static final String DB_URL = "jdbc:oracle:thin:@db.ig.he-arc.ch:1521:ens";
-    public static final String DB_USER = "ICL_SM_NC_JD";
-    public static final String DB_PASSWORD = "ICL_SM_NC_JD";
+
+    private static Connection connection;
+    private static final String DB_URL = "jdbc:oracle:thin:@db.ig.he-arc.ch:1521:ens";
+    private static final String DB_USER = "ICL_SM_NC_JD";
+    private static final String DB_PASSWORD = "ICL_SM_NC_JD";
+
+    private DbUtils() {
+    }
 
     public static Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+        if (connection == null || connection.isClosed()) {
+            synchronized (DbUtils.class) {
+                if (connection == null || connection.isClosed()) {
+                    connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+                }
+            }
+        }
+        return connection;
     }
 }

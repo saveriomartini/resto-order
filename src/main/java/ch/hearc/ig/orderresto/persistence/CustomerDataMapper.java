@@ -6,7 +6,6 @@ import ch.hearc.ig.orderresto.business.OrganizationCustomer;
 import ch.hearc.ig.orderresto.business.PrivateCustomer;
 import ch.hearc.ig.orderresto.service.DbUtils;
 import oracle.jdbc.OraclePreparedStatement;
-import oracle.jdbc.OracleType;
 import oracle.jdbc.OracleTypes;
 
 import java.sql.*;
