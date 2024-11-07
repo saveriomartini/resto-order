@@ -13,8 +13,20 @@ import java.sql.*;
 public class CustomerDataMapper {
 
     private IdentityMap<Customer> identityMapCustomer = new IdentityMap<>();
+    private static CustomerDataMapper instanceCustomerDataMapper;
+
+    private CustomerDataMapper() {
+    }
+
+    public static CustomerDataMapper getInstance() {
+        if (instanceCustomerDataMapper == null) {
+            instanceCustomerDataMapper = new CustomerDataMapper();
+        }
+        return instanceCustomerDataMapper;
+    }
 
     public Customer findCustomerById(Long id) {
+
         if (identityMapCustomer.contains(id)) {
             return identityMapCustomer.get(id);
         }
@@ -44,6 +56,14 @@ public class CustomerDataMapper {
     }
 
     public Customer findCustomerByEmail(String email) {
+
+        for (Customer customer : identityMapCustomer.values()) {
+
+            if (customer.getEmail().equals(email)) {
+                System.out.println("Customer found in identity map");
+                return customer;
+            }
+        }
         try {
             Connection dbConnect = DbUtils.getConnection();
             try (PreparedStatement ps = dbConnect.prepareStatement("SELECT * FROM CLIENT WHERE email = ?")) {
@@ -51,9 +71,6 @@ public class CustomerDataMapper {
                 ResultSet rs = ps.executeQuery();
                 if (rs.next()) {
                     Long idCustomer = rs.getLong("numero");
-                    if (identityMapCustomer.contains(idCustomer)) {
-                        return identityMapCustomer.get(idCustomer);
-                    }
                     String legalForm = rs.getString("forme_sociale");
                     Customer customer;
                     if (legalForm != null) {
@@ -74,6 +91,11 @@ public class CustomerDataMapper {
     }
 
     public Customer findOrganizationByID(Long id) throws SQLException {
+
+
+        if (identityMapCustomer.contains(id)) {
+            return identityMapCustomer.get(id);
+        }
 
         Connection dbConnect = DbUtils.getConnection();
         try (PreparedStatement ps = dbConnect.prepareStatement("SELECT * FROM CLIENT WHERE numero = ?")) {
@@ -105,6 +127,10 @@ public class CustomerDataMapper {
     }
 
     public Customer findPrivateByID(Long id) throws SQLException {
+
+        if (identityMapCustomer.contains(id)) {
+            return identityMapCustomer.get(id);
+        }
         Connection dbConnect = DbUtils.getConnection();
         try (PreparedStatement ps = dbConnect.prepareStatement("SELECT * FROM CLIENT WHERE numero = ?")) {
             ps.setLong(1, id);
@@ -177,5 +203,10 @@ public class CustomerDataMapper {
             e.printStackTrace();
         }
         return idCustomer;
+    }
+
+    // Pour tester seulement, ce n'est pas utile pour le projet
+    public void printIndentityMap(){
+        System.out.println(identityMapCustomer.toString());
     }
 }
