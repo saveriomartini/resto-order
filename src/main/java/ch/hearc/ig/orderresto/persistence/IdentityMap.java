@@ -1,5 +1,8 @@
 package ch.hearc.ig.orderresto.persistence;
 
+import ch.hearc.ig.orderresto.business.Customer;
+
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,4 +20,17 @@ public class IdentityMap<T>{
     public boolean contains (Long id){
         return map.containsKey(id);
     }
+    public Collection<T> values() {
+        return map.values();
+    }
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        for (Map.Entry<Long, T> entry : map.entrySet()) {
+            sb.append("ID: ").append(entry.getKey()).append(", Value: ").append(entry.getValue().toString()).append("\n");
+        }
+        return sb.toString();
+    }
+
+
 }

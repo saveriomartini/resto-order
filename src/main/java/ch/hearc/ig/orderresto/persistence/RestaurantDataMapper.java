@@ -14,17 +14,18 @@ import java.util.Set;
 
 public class RestaurantDataMapper {
 
-
-
+    public IdentityMap<Restaurant> identityMapRestaurant = new IdentityMap<>();
     public Restaurant findById(Long id) {
 
+        Restaurant restaurant = null;
         try {
             Connection connection = DbUtils.getConnection();
             java.sql.PreparedStatement statement = connection.prepareStatement("SELECT * FROM restaurant WHERE numero = ?");
             statement.setLong(1, id);
             java.sql.ResultSet resultSet = statement.executeQuery();
+
             if (resultSet.next()) {
-                return new Restaurant(
+                restaurant= new Restaurant(
                         resultSet.getLong("numero"),
                         resultSet.getString("nom"),
                         new Address(
@@ -36,10 +37,11 @@ public class RestaurantDataMapper {
                         )
                 );
             }
+            identityMapRestaurant.put(id, restaurant);
         } catch (java.sql.SQLException e) {
             throw new RuntimeException("Impossible de récupérer le restaurant.", e);
         }
-        return null;
+        return restaurant;
     }
 
     public Set<Restaurant>getAllRestaurants() {
@@ -68,7 +70,7 @@ public class RestaurantDataMapper {
         }
     }
 
-    public Set<Product> findProductsByRestaurantId(Long restaurantId) {
+/*    public Set<Product> findProductsByRestaurantId(Long restaurantId) {
         Set<Product> products = new HashSet<>();
         Restaurant restaurant = findById(restaurantId);
         try {
@@ -92,27 +94,5 @@ public class RestaurantDataMapper {
             throw new RuntimeException("Impossible de récupérer les produits.", e);
         }
         return products;
-    }
-
-    /*public void insert (Restaurant restaurant) {
-
-        Address address = new Address("CH", "1000", "Lausanne", "Rue de la Grotte", "1");
-
-        String name = restaurant.getName();
-        String code_postal = address.getPostalCode();
-        String localite = address.getLocality();
-        String rue = address.getStreet();
-        String num_rue = address.getStreetNumber();
-        String pays = address.getCountryCode();
-
-        try {
-            java.sql.PreparedStatement statement = connection.prepareStatement("INSERT INTO restaurant (name, code_postal, localite, rue, num_rue, pays ) VALUES (name, code_postal, localite, rue, num_rue, pays)");
-            statement.executeUpdate();
-        } catch (java.sql.SQLException e) {
-            throw new RuntimeException("Impossible d'insérer le restaurant.", e);
-        }
     }*/
-
-
-
 }

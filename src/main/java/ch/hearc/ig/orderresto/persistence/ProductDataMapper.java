@@ -13,8 +13,9 @@ import java.util.Set;
 
 public class ProductDataMapper {
 
-    public Product findById(Long id) {
+    private IdentityMap<Product> identityMapProduct = new IdentityMap<>();
 
+    public Product findById(Long id) {
         try {
             Connection connection = DbUtils.getConnection();
             PreparedStatement statement = connection.prepareStatement("SELECT * FROM produit WHERE numero = ?");
@@ -24,13 +25,15 @@ public class ProductDataMapper {
                 long restaurantId = resultSet.getLong("fk_resto");
                 RestaurantDataMapper restaurantDataMapper = new RestaurantDataMapper();
                 Restaurant resto = restaurantDataMapper.findById(restaurantId);
-                return new Product(
+                Product product = new Product(
                         resultSet.getLong("numero"),
                         resultSet.getString("nom"),
                         resultSet.getBigDecimal("prix_unitaire"),
                         resultSet.getString("description"),
                         resto
                 );
+                identityMapProduct.put(id, product);
+                return product;
             }
         } catch (SQLException e) {
             throw new RuntimeException("Impossible de récupérer le produit.", e);
@@ -38,27 +41,37 @@ public class ProductDataMapper {
         return null;
     }
 
-    public Set<Product> getAllProductsByRestaurant( Long restaurantId) {
-        try {
-            Connection connection = DbUtils.getConnection();
-            PreparedStatement statement = connection.prepareStatement("SELECT * FROM produit WHERE fk_resto = ?");
-            statement.setLong(1, restaurantId);
-            ResultSet resultSet = statement.executeQuery();
-            Set<Product> products = new HashSet<>();
-            while (resultSet.next()) {
-                RestaurantDataMapper restaurantDataMapper = new RestaurantDataMapper();
-                Restaurant resto = restaurantDataMapper.findById(restaurantId);
-                products.add(new Product(
-                        resultSet.getLong("numero"),
-                        resultSet.getString("nom"),
-                        resultSet.getBigDecimal("prix_unitaire"),
-                        resultSet.getString("description"),
-                        resto
-                ));
+    public Set<Product> getAllProductsByRestaurant(Long restaurantId) {
+        RestaurantDataMapper restaurantDataMapper = new RestaurantDataMapper();
+
+        if (restaurantDataMapper.identityMapRestaurant.contains(restaurantId)) {
+            System.out.println(restaurantDataMapper.identityMapRestaurant.get(restaurantId).getProductsCatalog());
+            System.out.println("coucou");
+            return restaurantDataMapper.identityMapRestaurant.get(restaurantId).getProductsCatalog();
+        } else {
+            Restaurant resto = restaurantDataMapper.findById(restaurantId);
+            try {
+                Connection connection = DbUtils.getConnection();
+                PreparedStatement statement = connection.prepareStatement("SELECT * FROM produit WHERE fk_resto = ?");
+                statement.setLong(1, restaurantId);
+                ResultSet resultSet = statement.executeQuery();
+                while (resultSet.next()) {
+                    long productId = resultSet.getLong("numero");
+                    Product product = new Product(
+                            resultSet.getLong("numero"),
+                            resultSet.getString("nom"),
+                            resultSet.getBigDecimal("prix_unitaire"),
+                            resultSet.getString("description"),
+                            resto
+                    );
+                    resto.registerProduct(product);
+                    identityMapProduct.put(productId, product);
+                }
+            } catch (SQLException e) {
+                throw new RuntimeException("Impossible de récupérer les produits.", e);
             }
-            return products;
-        } catch (SQLException e) {
-            throw new RuntimeException("Impossible de récupérer les produits.", e);
+            return resto.getProductsCatalog();
         }
     }
+
 }
