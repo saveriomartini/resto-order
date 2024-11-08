@@ -14,7 +14,18 @@ import java.util.Set;
 
 public class RestaurantDataMapper {
 
+    private IdentityMap<Product> identityMapRestaurant = new IdentityMap<>();
+    private static RestaurantDataMapper instanceOfRestaurantDataMapper;
 
+    public RestaurantDataMapper() {
+    }
+
+    public static RestaurantDataMapper getInstance() {
+        if (instanceOfRestaurantDataMapper == null) {
+            instanceOfRestaurantDataMapper = new RestaurantDataMapper();
+        }
+        return instanceOfRestaurantDataMapper;
+    }
 
     public Restaurant findById(Long id) {
 

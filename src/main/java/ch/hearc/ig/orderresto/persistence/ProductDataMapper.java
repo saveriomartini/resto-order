@@ -13,6 +13,23 @@ import java.util.Set;
 
 public class ProductDataMapper {
 
+    private IdentityMap<Product> identityMapProduct = new IdentityMap<>();
+    private static ProductDataMapper instanceOfProductDataMapper;
+
+    public ProductDataMapper() {
+    }
+
+    public static ProductDataMapper getInstance() {
+        if (instanceOfProductDataMapper == null) {
+            instanceOfProductDataMapper = new ProductDataMapper();
+        }
+        return instanceOfProductDataMapper;
+    }
+
+    public IdentityMap<Product> getIdentityMapProduct() {
+        return identityMapProduct;
+    }
+
     public Product findById(Long id) {
 
         try {
