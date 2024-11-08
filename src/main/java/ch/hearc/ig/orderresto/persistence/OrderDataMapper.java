@@ -19,6 +19,7 @@ import java.util.Set;
 
 public class OrderDataMapper {
 
+    private IdentityMap<Order> orderIdentityMap = new IdentityMap<>();
 
     public Order insertOrder(Order order) {
         try {
@@ -31,12 +32,15 @@ public class OrderDataMapper {
                 ps.setTimestamp(4, java.sql.Timestamp.valueOf(order.getWhen()));
                 ps.registerReturnParameter(5, OracleTypes.NUMBER);
                 ps.executeUpdate();
-
                 try (ResultSet rs = ps.getReturnResultSet()) {
                     if (rs.next()) {
-
                         order.setId(rs.getLong(1));
-                        System.out.println("Order id: " + order.getId());
+                        //System.out.println("Order id: " + order.getId());
+                        if (!orderIdentityMap.contains(order.getId())) {
+                            orderIdentityMap.put(order.getId(), order);
+                            System.out.println("L'ID de la commande c'est : " + order.getId());
+                        }
+                        //orderIdentityMap.put(order.getId(), order);
                     }
                 }
             }
@@ -47,6 +51,7 @@ public class OrderDataMapper {
     }
 
     public void insertOrderProducts(Order order) {
+        IdentityMap<Product> productIdentityMap = new IdentityMap<>();
         try {
             Connection dbConnect = DbUtils.getConnection();
             String sql = "INSERT INTO produit_commande (FK_commande, FK_produit) VALUES (?, ?)";
@@ -55,6 +60,12 @@ public class OrderDataMapper {
                     ps.setLong(1, order.getId());
                     ps.setLong(2, product.getId());
                     ps.addBatch();
+                    if (!productIdentityMap.contains(product.getId())) {
+                        productIdentityMap.put(product.getId(), product);
+                        System.out.println("Le produit c'est : " + product);
+                    }
+                    //A réflechir, est-ce utile de contrôler si la clé existe déjà
+                    //productIdentityMap.put(product.getId(), product);
                 }
                 ps.executeBatch();
             }
@@ -92,6 +103,12 @@ public class OrderDataMapper {
     public Set<Order> findAllOrdersByCustomer(Customer customer) throws SQLException {
         Set<Order> orders = new HashSet<>();
         Connection dbConnect = DbUtils.getConnection();
+        if CustomerDataMapper.identityMapCustomer.contains(customer.getId()) {
+            if (orderIdentityMap.contains(customer.getId())) {
+                return orderIdentityMap.get(customer.getId());
+            }
+            customer = CustomerDataMapper.identityMapCustomer.get(customer.getId());
+        }
         try (PreparedStatement ps = dbConnect.prepareStatement(
                 "SELECT c.numero AS order_id, c.quand, c.a_emporter, p.numero AS product_id, p.nom, p.prix_unitaire, p.description, r.numero AS restaurant_id, r.nom AS restaurant_name FROM COMMANDE c JOIN PRODUIT_COMMANDE pc ON c.numero = pc.fk_commande JOIN PRODUIT p ON pc.fk_produit = p.numero JOIN RESTAURANT r ON c.fk_resto = r.numero WHERE c.fk_client = ?")) {
             ps.setLong(1, customer.getId());
@@ -118,6 +135,4 @@ public class OrderDataMapper {
         }
         return orders;
     }
-
-
 }
