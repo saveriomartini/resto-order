@@ -1,9 +1,6 @@
 package ch.hearc.ig.orderresto.service;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Wrapper;
+import java.sql.*;
 
 public class DbUtils {
 
@@ -25,4 +22,52 @@ public class DbUtils {
         }
         return connection;
     }
+
+
+    public static void cleanUp(PreparedStatement ps) {
+        if (ps != null) {
+            try {
+                ps.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public static void cleanUp(ResultSet rs) {
+        if (rs != null) {
+            try {
+                rs.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public static void cleanUp(Statement stmt) {
+        if (stmt != null) {
+            try {
+                stmt.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public static void cleanUp(Connection conn) {
+        if (conn != null) {
+            try {
+                conn.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public static void cleanUp(Connection conn, Statement stmt, ResultSet rs) {
+        cleanUp(rs);
+        cleanUp(stmt);
+        cleanUp(conn);
+    }
 }
+

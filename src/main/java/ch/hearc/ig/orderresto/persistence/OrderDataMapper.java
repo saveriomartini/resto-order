@@ -102,7 +102,7 @@ public class OrderDataMapper {
                 Boolean takeAway = rs.getBoolean("a_emporter");
                 Long restaurantId = rs.getLong("restaurant_id");
 
-                Restaurant restaurant = RestaurantDataMapper.getInstance().findById(restaurantId);
+                Restaurant restaurant = (Restaurant) RestaurantDataMapper.getInstance().abstractFind(restaurantId);
                 Order order = new Order(orderId, customer, restaurant, takeAway, when);
 
                 Long productId = rs.getLong("product_id");

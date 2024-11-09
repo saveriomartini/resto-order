@@ -50,7 +50,6 @@ public class OrderCLI extends AbstractCLI {
         customer.addOrder(order);
 
         this.ln("Merci pour votre commande!");
-        customerDataMapper.printIndentityMap();
         return order;
     }
     public void displayOrders() throws SQLException {

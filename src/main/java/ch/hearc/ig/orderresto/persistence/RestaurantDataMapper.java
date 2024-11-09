@@ -1,22 +1,12 @@
 package ch.hearc.ig.orderresto.persistence;
 
-import ch.hearc.ig.orderresto.business.Address;
-import ch.hearc.ig.orderresto.business.Product;
-import ch.hearc.ig.orderresto.business.Restaurant;
-import ch.hearc.ig.orderresto.service.DbUtils;
-
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
-public class RestaurantDataMapper extends AbstractRestoMapper {
+import ch.hearc.ig.orderresto.business.*;
+import java.sql.*;
 
 
+public class RestaurantDataMapper extends AbstractDataMapper {
+
+    public static final String COLUMNS = "numero, nom, pays, code_postal, localite, rue, num_rue";
     private static RestaurantDataMapper instanceOfRestaurantDataMapper;
 
     private RestaurantDataMapper() {
@@ -29,90 +19,48 @@ public class RestaurantDataMapper extends AbstractRestoMapper {
         return instanceOfRestaurantDataMapper;
     }
 
-    public Restaurant findById(Long id) {
 
-        Restaurant restaurant = null;
-        try {
-            Connection connection = DbUtils.getConnection();
-            PreparedStatement statement = connection.prepareStatement("SELECT * FROM restaurant WHERE numero = ?");
-            statement.setLong(1, id);
-            ResultSet resultSet = statement.executeQuery();
-
-            if (resultSet.next()) {
-                restaurant= new Restaurant(
-                        resultSet.getLong("numero"),
-                        resultSet.getString("nom"),
-                        new Address(
-                                resultSet.getString("pays"),
-                                resultSet.getString("code_postal"),
-                                resultSet.getString("localite"),
-                                resultSet.getString("rue"),
-                                resultSet.getString("num_rue")
-                        )
-                        //restaurant.getProductsCatalog().add() a finir !!
-
-
-                );
-            }
-            cache.put(id, restaurant);
-        } catch (SQLException e) {
-            throw new RuntimeException("Impossible de récupérer le restaurant.", e);
-        }
-        return restaurant;
+    protected String insertStatement() {
+        return "INSERT INTO restaurant (nom, pays, code_postal, localite, rue, num_rue) VALUES (?,?,?,?,?,?)";
     }
 
-    public Set<Restaurant>getAllRestaurants() {
 
-        Set<Restaurant> restaurants = new HashSet<>();
-        try {
-            Connection connection = DbUtils.getConnection();
-            PreparedStatement statement = connection.prepareStatement("SELECT * FROM restaurant");
-            ResultSet resultSet = statement.executeQuery();
-            Restaurant restaurant;
-            while (resultSet.next()) {
-                restaurant= new Restaurant(
-                        resultSet.getLong("numero"),
-                        resultSet.getString("nom"),
-                        new Address(
-                                resultSet.getString("pays"),
-                                resultSet.getString("code_postal"),
-                                resultSet.getString("localite"),
-                                resultSet.getString("rue"),
-                                resultSet.getString("num_rue")
-                        )
-                );
-                restaurants.add(restaurant);
-                cache.put(restaurant.getId(), restaurant);
-            }
-            return restaurants;
-        } catch (SQLException e) {
-            throw new RuntimeException("Impossible de récupérer les restaurants.", e);
-        }
+    protected void doInsert(RestoObject restoObject, PreparedStatement stmt) throws SQLException {
+        Restaurant restaurant = (Restaurant) restoObject;
+        stmt.setString(1, restaurant.getName());
+        stmt.setString(2, restaurant.getAddress().getCountryCode());
+        stmt.setString(3, restaurant.getAddress().getPostalCode());
+        stmt.setString(4, restaurant.getAddress().getLocality());
+        stmt.setString(5, restaurant.getAddress().getStreet());
+        stmt.setString(6, restaurant.getAddress().getStreetNumber());
     }
 
-/*    public Set<Product> findProductsByRestaurantId(Long restaurantId) {
-        Set<Product> products = new HashSet<>();
-        Restaurant restaurant = findById(restaurantId);
-        try {
-            Connection connection = DbUtils.getConnection();
-            PreparedStatement statement = connection.prepareStatement(
-                    "SELECT * FROM product WHERE restaurant_id = ?"
-            );
-            statement.setLong(1, restaurantId);
-            ResultSet resultSet = statement.executeQuery();
-            while (resultSet.next()) {
 
-                products.add(new Product(
-                        resultSet.getLong("id"),
-                        resultSet.getString("name"),
-                        resultSet.getBigDecimal("unit_price"),
-                        resultSet.getString("description"),
-                        restaurant
-                ));
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException("Impossible de récupérer les produits.", e);
-        }
-        return products;
-    }*/
+    @Override
+    protected String findStatement() {
+        return "SELECT * FROM restaurant WHERE numero = ?";
+    }
+
+    public Restaurant find(Long id) {
+        return (Restaurant) abstractFind(id);
+    }
+
+
+    @Override
+    protected RestoObject doLoad(Long id, ResultSet rs) throws SQLException {
+        return new Restaurant(
+                rs.getLong("numero"),
+                rs.getString("nom"),
+                new Address(
+                        rs.getString("pays"),
+                        rs.getString("code_postal"),
+                        rs.getString("localite"),
+                        rs.getString("rue"),
+                        rs.getString("num_rue")
+                )
+        );
+    }
+
+
+
 }

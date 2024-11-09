@@ -1,21 +1,12 @@
 package ch.hearc.ig.orderresto.persistence;
 
-import ch.hearc.ig.orderresto.business.Address;
-import ch.hearc.ig.orderresto.business.Customer;
-import ch.hearc.ig.orderresto.business.OrganizationCustomer;
-import ch.hearc.ig.orderresto.business.PrivateCustomer;
-import ch.hearc.ig.orderresto.service.DbUtils;
-import oracle.jdbc.OraclePreparedStatement;
-import oracle.jdbc.OracleTypes;
-
+import ch.hearc.ig.orderresto.business.*;
 import java.sql.*;
-import java.util.HashMap;
-import java.util.Map;
-
-public class CustomerDataMapper extends AbstractRestoMapper {
 
 
-    private Map<String, Customer> emailToCustomerMap = new HashMap<>();
+public class CustomerDataMapper extends AbstractDataMapper {
+
+
     private static CustomerDataMapper instanceCustomerDataMapper;
 
     private CustomerDataMapper() {
@@ -28,187 +19,37 @@ public class CustomerDataMapper extends AbstractRestoMapper {
         return instanceCustomerDataMapper;
     }
 
-    public Customer findCustomerById(Long id) {
+    protected String insertStatement() {
+        return "INSERT INTO CLIENT (email, telephone, pays, code_postal, localite, rue, num_rue, nom, forme_sociale, prenom, est_une_femme, type) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)";
 
-        if (cache.containsKey(id)) {
-            return (Customer) cache.get(id);
-        }
-        try {
-            Connection dbConnect = DbUtils.getConnection();
-            try (PreparedStatement ps = dbConnect.prepareStatement("SELECT forme_sociale FROM CLIENT WHERE numero = ?")) {
-                ps.setLong(1, id);
-                ResultSet rs = ps.executeQuery();
-                if (rs.next()) {
-                    String legalForm = rs.getString("forme_sociale");
-                    Customer customer;
-                    if (legalForm != null) {
-                        customer= findOrganizationByID(id);
-                    } else {
-                        customer = findPrivateByID(id);
-                    }
-                    cache.put(id, customer);
-                    emailToCustomerMap.put(customer.getEmail(), customer);
-                    return customer;
-                } else {
-                    return null;
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return null;
-        }
     }
 
-    public Customer findCustomerByEmail(String email) {
+    protected void doInsert(RestoObject restoObject, PreparedStatement stmt) throws SQLException {
+        Customer customer = (Customer) restoObject;
+        stmt.setString(1, customer.getEmail());
+        stmt.setString(2, customer.getPhone());
+        stmt.setString(3, customer.getAddress().getCountryCode());
+        stmt.setString(4, customer.getAddress().getPostalCode());
+        stmt.setString(5, customer.getAddress().getLocality());
+        stmt.setString(6, customer.getAddress().getStreet());
+        stmt.setString(7, customer.getAddress().getStreetNumber());
 
-        if (emailToCustomerMap.containsKey(email)) {
-            return emailToCustomerMap.get(email);
-        }
-        try {
-            Connection dbConnect = DbUtils.getConnection();
-            try (PreparedStatement ps = dbConnect.prepareStatement("SELECT * FROM CLIENT WHERE email = ?")) {
-                ps.setString(1, email);
-                ResultSet rs = ps.executeQuery();
-                if (rs.next()) {
-                    Long idCustomer = rs.getLong("numero");
-                    String legalForm = rs.getString("forme_sociale");
-                    Customer customer;
-                    if (legalForm != null) {
-                        customer= findOrganizationByID(idCustomer);
-                    } else {
-                        customer= findPrivateByID(idCustomer);
-                    }
-                    cache.put(idCustomer, customer);
-                    emailToCustomerMap.put(email, customer);
-                    return customer;
-                } else {
-                    return null;
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+    }
+
+    @Override
+    protected String findStatement() {
+        return "";
+    }
+
+    public Customer find(Long id) {
+        return (Customer) abstractFind(id);
+    }
+
+
+
+    @Override
+    protected RestoObject doLoad(Long id, ResultSet rs) throws SQLException {
+
         return null;
-    }
-
-    public Customer findOrganizationByID(Long id) throws SQLException {
-
-
-        if (cache.containsKey(id)) {
-            return (Customer) cache.get(id);
-        }
-
-        Connection dbConnect = DbUtils.getConnection();
-        try (PreparedStatement ps = dbConnect.prepareStatement("SELECT * FROM CLIENT WHERE numero = ?")) {
-            ps.setLong(1, id);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                Address address = new Address(
-                        rs.getString("pays"),
-                        rs.getString("code_postal"),
-                        rs.getString("localite"),
-                        rs.getString("rue"),
-                        rs.getString("num_rue")
-                );
-                return new OrganizationCustomer(
-                        rs.getLong("numero"),
-                        rs.getString("telephone"),
-                        rs.getString("email"),
-                        address,
-                        rs.getString("nom"),
-                        rs.getString("forme_sociale")
-                );
-            } else {
-                return null;
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    public Customer findPrivateByID(Long id) throws SQLException {
-
-        if (cache.containsKey(id)) {
-            return (Customer) cache.get(id);
-        }
-        Connection dbConnect = DbUtils.getConnection();
-        try (PreparedStatement ps = dbConnect.prepareStatement("SELECT * FROM CLIENT WHERE numero = ?")) {
-            ps.setLong(1, id);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                Address address = new Address(
-                        rs.getString("pays"),
-                        rs.getString("code_postal"),
-                        rs.getString("localite"),
-                        rs.getString("rue"),
-                        rs.getString("num_rue")
-                );
-                return new PrivateCustomer(
-                        rs.getLong("numero"),
-                        rs.getString("telephone"),
-                        rs.getString("email"),
-                        address,
-                        rs.getString("est_une_femme"),
-                        rs.getString("prenom"),
-                        rs.getString("nom")
-                );
-            } else {
-                return null;
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    public Long insert(Customer customer) {
-
-        long idCustomer = -1;
-        try {
-            Connection dbConnect = DbUtils.getConnection();
-            String sql = "INSERT INTO CLIENT (email, telephone, pays, code_postal, localite, rue, num_rue, nom, forme_sociale, prenom, est_une_femme, type) VALUES (?,?,?,?,?,?,?,?,?,?,?,?) returning numero into ?";
-            try (OraclePreparedStatement ps = (OraclePreparedStatement) dbConnect.prepareStatement(sql)) {
-                ps.setString(1, customer.getEmail());
-                ps.setString(2, customer.getPhone());
-                ps.setString(3, customer.getAddress().getCountryCode());
-                ps.setString(4, customer.getAddress().getPostalCode());
-                ps.setString(5, customer.getAddress().getLocality());
-                ps.setString(6, customer.getAddress().getStreet());
-                ps.setString(7, customer.getAddress().getStreetNumber());
-                if (customer instanceof OrganizationCustomer) {
-                    ps.setString(8, ((OrganizationCustomer) customer).getName());
-                    ps.setString(9, ((OrganizationCustomer) customer).getLegalForm());
-                    ps.setNull(10, Types.VARCHAR);
-                    ps.setNull(11, Types.CHAR);
-                    ps.setString(12, "O");
-                } else {
-                    ps.setString(8, ((PrivateCustomer) customer).getLastName());
-                    ps.setNull(9, Types.VARCHAR);
-                    ps.setString(10, ((PrivateCustomer) customer).getFirstName());
-                    ps.setString(11, ((PrivateCustomer) customer).getGender().equals("H") ? "N" : "O");
-                    ps.setString(12, "P");
-                }
-                ps.registerReturnParameter(13, OracleTypes.NUMBER);
-                ps.executeUpdate();
-                try (ResultSet rs = ps.getReturnResultSet()) {
-                    if (rs.next()) {
-                        idCustomer = rs.getLong(1);
-                        customer.setId(idCustomer);
-                        cache.put(idCustomer, customer);
-                        emailToCustomerMap.put(customer.getEmail(), customer);
-                        System.out.println("Customer inserted with id: " + idCustomer);
-                    }
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return idCustomer;
-    }
-
-    // Pour tester seulement, ce n'est pas utile pour le projet
-    public void printIndentityMap(){
-        System.out.println(cache.toString());
     }
 }

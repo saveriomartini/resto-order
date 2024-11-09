@@ -1,6 +1,6 @@
 package ch.hearc.ig.orderresto.business;
 
-public class AbstractRestoObject implements RestoObject {
+public abstract class AbstractRestoObject implements RestoObject {
     private Long id;
 
     public Long getId() {

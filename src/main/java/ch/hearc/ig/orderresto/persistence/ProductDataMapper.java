@@ -2,6 +2,7 @@ package ch.hearc.ig.orderresto.persistence;
 
 import ch.hearc.ig.orderresto.business.Product;
 import ch.hearc.ig.orderresto.business.Restaurant;
+import ch.hearc.ig.orderresto.business.RestoObject;
 import ch.hearc.ig.orderresto.service.DbUtils;
 
 import java.sql.Connection;
@@ -10,7 +11,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Set;
 
-public class ProductDataMapper extends AbstractRestoMapper {
+public class ProductDataMapper extends AbstractDataMapper {
 
     private static ProductDataMapper instanceOfProductDataMapper;
 
@@ -25,8 +26,22 @@ public class ProductDataMapper extends AbstractRestoMapper {
     }
 
 
+    @Override
+    protected String findStatement() {
+        return "";
+    }
 
-    public Product findById(Long id) {
+    @Override
+    protected void doInsert(RestoObject restoObject, PreparedStatement stmt) throws SQLException {
+
+    }
+
+    @Override
+    protected String insertStatement() {
+        return "";
+    }
+
+    public Product abstractFind(Long id) {
         if (cache.containsKey(id)) {
             return (Product) cache.get(id);
         }
@@ -38,7 +53,7 @@ public class ProductDataMapper extends AbstractRestoMapper {
             if (resultSet.next()) {
                 long restaurantId = resultSet.getLong("fk_resto");
                 RestaurantDataMapper restaurantDataMapper = RestaurantDataMapper.getInstance();
-                Restaurant resto = restaurantDataMapper.findById(restaurantId);
+                Restaurant resto = (Restaurant) restaurantDataMapper.abstractFind(restaurantId);
                 Product product = new Product(
                         resultSet.getLong("numero"),
                         resultSet.getString("nom"),
@@ -55,6 +70,11 @@ public class ProductDataMapper extends AbstractRestoMapper {
         return null;
     }
 
+    @Override
+    protected RestoObject doLoad(Long id, ResultSet rs) throws SQLException {
+        return null;
+    }
+
     public Set<Product> getAllProductsByRestaurant(Long restaurantId) {
 
         RestaurantDataMapper restaurantDataMapper = RestaurantDataMapper.getInstance();
@@ -66,7 +86,7 @@ public class ProductDataMapper extends AbstractRestoMapper {
             return resto.getProductsCatalog();
         } else {
             System.out.println("Restaurant not found in identityMapRestaurant, fetching from database");
-            Restaurant resto = restaurantDataMapper.findById(restaurantId);
+            Restaurant resto = (Restaurant) restaurantDataMapper.abstractFind(restaurantId);
             try {
                 Connection connection = DbUtils.getConnection();
                 PreparedStatement statement = connection.prepareStatement("SELECT * FROM produit WHERE fk_resto = ?");
