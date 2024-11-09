@@ -12,7 +12,24 @@ import java.sql.*;
 
 public class CustomerDataMapper {
 
+    private IdentityMap<Customer> identityMapCustomer = new IdentityMap<>();
+    private static CustomerDataMapper instanceCustomerDataMapper;
+
+    private CustomerDataMapper() {
+    }
+
+    public static CustomerDataMapper getInstance() {
+        if (instanceCustomerDataMapper == null) {
+            instanceCustomerDataMapper = new CustomerDataMapper();
+        }
+        return instanceCustomerDataMapper;
+    }
+
     public Customer findCustomerById(Long id) {
+
+        if (identityMapCustomer.contains(id)) {
+            return identityMapCustomer.get(id);
+        }
         try {
             Connection dbConnect = DbUtils.getConnection();
             try (PreparedStatement ps = dbConnect.prepareStatement("SELECT forme_sociale FROM CLIENT WHERE numero = ?")) {
@@ -20,11 +37,14 @@ public class CustomerDataMapper {
                 ResultSet rs = ps.executeQuery();
                 if (rs.next()) {
                     String legalForm = rs.getString("forme_sociale");
+                    Customer customer;
                     if (legalForm != null) {
-                        return findOrganizationByID(id);
+                        customer= findOrganizationByID(id);
                     } else {
-                        return findPrivateByID(id);
+                        customer = findPrivateByID(id);
                     }
+                    identityMapCustomer.put(id, customer);
+                    return customer;
                 } else {
                     return null;
                 }
@@ -36,6 +56,14 @@ public class CustomerDataMapper {
     }
 
     public Customer findCustomerByEmail(String email) {
+
+        for (Customer customer : identityMapCustomer.values()) {
+
+            if (customer.getEmail().equals(email)) {
+                System.out.println("Customer found in identity map");
+                return customer;
+            }
+        }
         try {
             Connection dbConnect = DbUtils.getConnection();
             try (PreparedStatement ps = dbConnect.prepareStatement("SELECT * FROM CLIENT WHERE email = ?")) {
@@ -44,22 +72,31 @@ public class CustomerDataMapper {
                 if (rs.next()) {
                     Long idCustomer = rs.getLong("numero");
                     String legalForm = rs.getString("forme_sociale");
+                    Customer customer;
                     if (legalForm != null) {
-                        return findOrganizationByID(idCustomer);
+                        customer= findOrganizationByID(idCustomer);
                     } else {
-                        return findPrivateByID(idCustomer);
+                        customer= findPrivateByID(idCustomer);
                     }
+                    identityMapCustomer.put(idCustomer, customer);
+                    return customer;
                 } else {
                     return null;
                 }
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            return null;
         }
+        return null;
     }
 
     public Customer findOrganizationByID(Long id) throws SQLException {
+
+
+        if (identityMapCustomer.contains(id)) {
+            return identityMapCustomer.get(id);
+        }
+
         Connection dbConnect = DbUtils.getConnection();
         try (PreparedStatement ps = dbConnect.prepareStatement("SELECT * FROM CLIENT WHERE numero = ?")) {
             ps.setLong(1, id);
@@ -90,6 +127,10 @@ public class CustomerDataMapper {
     }
 
     public Customer findPrivateByID(Long id) throws SQLException {
+
+        if (identityMapCustomer.contains(id)) {
+            return identityMapCustomer.get(id);
+        }
         Connection dbConnect = DbUtils.getConnection();
         try (PreparedStatement ps = dbConnect.prepareStatement("SELECT * FROM CLIENT WHERE numero = ?")) {
             ps.setLong(1, id);
@@ -120,7 +161,9 @@ public class CustomerDataMapper {
         return null;
     }
 
-    public Customer insert(Customer customer) {
+    public Long insert(Customer customer) {
+
+        long idCustomer = -1;
         try {
             Connection dbConnect = DbUtils.getConnection();
             String sql = "INSERT INTO CLIENT (email, telephone, pays, code_postal, localite, rue, num_rue, nom, forme_sociale, prenom, est_une_femme, type) VALUES (?,?,?,?,?,?,?,?,?,?,?,?) returning numero into ?";
@@ -149,13 +192,21 @@ public class CustomerDataMapper {
                 ps.executeUpdate();
                 try (ResultSet rs = ps.getReturnResultSet()) {
                     if (rs.next()) {
-                        customer.setId(rs.getLong(1));
+                        idCustomer = rs.getLong(1);
+                        customer.setId(idCustomer);
+                        identityMapCustomer.put(idCustomer, customer);
+                        System.out.println("Customer inserted with id: " + idCustomer);
                     }
                 }
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return customer;
+        return idCustomer;
+    }
+
+    // Pour tester seulement, ce n'est pas utile pour le projet
+    public void printIndentityMap(){
+        System.out.println(identityMapCustomer.toString());
     }
 }

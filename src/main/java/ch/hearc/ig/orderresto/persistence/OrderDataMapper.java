@@ -15,11 +15,72 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 public class OrderDataMapper {
 
-    private IdentityMap<Order> orderIdentityMap = new IdentityMap<>();
+    private IdentityMap<Order> identityMapOrder = new IdentityMap<>();
+    private static OrderDataMapper instanceOfOrderDataMapper;
+
+    public OrderDataMapper() {
+    }
+
+    public static OrderDataMapper getInstance() {
+        if (instanceOfOrderDataMapper == null) {
+            instanceOfOrderDataMapper = new OrderDataMapper();
+        }
+        return instanceOfOrderDataMapper;
+    }
+
+   public Set<Order> findAllOrdersByCustomer(Customer customer) throws SQLException {
+        Set<Order> orderSet = new HashSet<>();
+
+        // Log la taille de la map
+        System.out.println("Taille de identityMapOrder : " + identityMapOrder.size());
+
+       for (Order order : OrderDataMapper.instanceOfOrderDataMapper.identityMapOrder.values()) {
+           if (order.getCustomer().getId().equals(customer.getId())) {
+               orderSet.add(order);
+           }
+       }
+
+       if (orderSet.isEmpty()) {
+            try {
+                Connection dbConnect = DbUtils.getConnection();
+                try (PreparedStatement ps = dbConnect.prepareStatement(
+                        "SELECT c.numero AS order_id, c.quand, c.a_emporter, p.numero AS product_id, p.nom, p.prix_unitaire, p.description, r.numero AS restaurant_id, r.nom AS restaurant_name FROM COMMANDE c JOIN PRODUIT_COMMANDE pc ON c.numero = pc.fk_commande JOIN PRODUIT p ON pc.fk_produit = p.numero JOIN RESTAURANT r ON c.fk_resto = r.numero WHERE c.fk_client = ?")) {
+                    ps.setLong(1, customer.getId());
+                    ResultSet rs = ps.executeQuery();
+                    while (rs.next()) {
+                        Long orderId = rs.getLong("order_id");
+                        LocalDateTime when = rs.getTimestamp("quand").toLocalDateTime();
+                        Boolean takeAway = rs.getBoolean("a_emporter");
+                        Long restaurantId = rs.getLong("restaurant_id");
+
+                        Restaurant restaurant = new RestaurantDataMapper().findById(restaurantId);
+                        Order order = new Order(orderId, customer, restaurant, takeAway, when);
+
+                        Long productId = rs.getLong("product_id");
+                        String productName = rs.getString("nom");
+                        BigDecimal productPrice = rs.getBigDecimal("prix_unitaire");
+                        String productDescription = rs.getString("description");
+
+                        Product product = new Product(productId, productName, productPrice, productDescription, restaurant);
+                        order.addProduct(product);
+                        ProductDataMapper.getInstance().getIdentityMapProduct().put(productId, product);
+
+                        orderSet.add(order);
+                        OrderDataMapper.instanceOfOrderDataMapper.identityMapOrder.put(orderId, order);
+                        System.out.println("Ajouté suite à une requête à la DB");
+                    }
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return orderSet;
+    }
 
     public Order insertOrder(Order order) {
         try {
@@ -35,12 +96,8 @@ public class OrderDataMapper {
                 try (ResultSet rs = ps.getReturnResultSet()) {
                     if (rs.next()) {
                         order.setId(rs.getLong(1));
-                        //System.out.println("Order id: " + order.getId());
-                        if (!orderIdentityMap.contains(order.getId())) {
-                            orderIdentityMap.put(order.getId(), order);
-                            System.out.println("L'ID de la commande c'est : " + order.getId());
-                        }
-                        //orderIdentityMap.put(order.getId(), order);
+                        OrderDataMapper.getInstance().identityMapOrder.put(order.getId(), order);
+
                     }
                 }
             }
@@ -51,7 +108,7 @@ public class OrderDataMapper {
     }
 
     public void insertOrderProducts(Order order) {
-        IdentityMap<Product> productIdentityMap = new IdentityMap<>();
+
         try {
             Connection dbConnect = DbUtils.getConnection();
             String sql = "INSERT INTO produit_commande (FK_commande, FK_produit) VALUES (?, ?)";
@@ -60,79 +117,14 @@ public class OrderDataMapper {
                     ps.setLong(1, order.getId());
                     ps.setLong(2, product.getId());
                     ps.addBatch();
-                    if (!productIdentityMap.contains(product.getId())) {
-                        productIdentityMap.put(product.getId(), product);
-                        System.out.println("Le produit c'est : " + product);
+                    if (!ProductDataMapper.getInstance().findById(product.getId()).equals(product)) {
+                        ProductDataMapper.getInstance().getIdentityMapProduct().put(product.getId(), product);
                     }
-                    //A réflechir, est-ce utile de contrôler si la clé existe déjà
-                    //productIdentityMap.put(product.getId(), product);
                 }
                 ps.executeBatch();
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-    }
-
-    /*public Set<Order> findAllOrdersByCustomer(Customer customer) throws SQLException {
-        Connection db = DbUtils.getConnection();
-        try (PreparedStatement dbStatement = db.prepareStatement(
-                "SELECT * FROM COMMANDE WHERE fk_client = ?"
-        )) {
-            dbStatement.setLong(1, customer.getId());
-            ResultSet dbResult = dbStatement.executeQuery();
-            Set<Order> ordersFound = new HashSet<>();
-            while (dbResult.next()) {
-                Restaurant restaurant = new RestaurantDataMapper().findById(dbResult.getLong("fk_resto"));
-                Order currentOrder = new Order(
-                        dbResult.getLong("numero"),
-                        customer,
-                        restaurant,// TODO: restaurant
-                        dbResult.getString("a_emporter").equals("O"), // Assuming 'O' for take-away, 'N' otherwise
-                        dbResult.getTimestamp("quand").toLocalDateTime()
-                );
-                ordersFound.add(currentOrder);
-            }
-            return ordersFound;
-
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }*/
-
-    public Set<Order> findAllOrdersByCustomer(Customer customer) throws SQLException {
-        Set<Order> orders = new HashSet<>();
-        Connection dbConnect = DbUtils.getConnection();
-        if CustomerDataMapper.identityMapCustomer.contains(customer.getId()) {
-            if (orderIdentityMap.contains(customer.getId())) {
-                return orderIdentityMap.get(customer.getId());
-            }
-            customer = CustomerDataMapper.identityMapCustomer.get(customer.getId());
-        }
-        try (PreparedStatement ps = dbConnect.prepareStatement(
-                "SELECT c.numero AS order_id, c.quand, c.a_emporter, p.numero AS product_id, p.nom, p.prix_unitaire, p.description, r.numero AS restaurant_id, r.nom AS restaurant_name FROM COMMANDE c JOIN PRODUIT_COMMANDE pc ON c.numero = pc.fk_commande JOIN PRODUIT p ON pc.fk_produit = p.numero JOIN RESTAURANT r ON c.fk_resto = r.numero WHERE c.fk_client = ?")) {
-            ps.setLong(1, customer.getId());
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                Long orderId = rs.getLong("order_id");
-                LocalDateTime when = rs.getTimestamp("quand").toLocalDateTime();
-                Boolean takeAway = rs.getBoolean("a_emporter");
-                Long restaurantId = rs.getLong("restaurant_id");
-
-                Restaurant restaurant = new RestaurantDataMapper().findById(restaurantId);
-                Order order = new Order(orderId, customer, restaurant, takeAway, when);
-
-                Long productId = rs.getLong("product_id");
-                String productName = rs.getString("nom");
-                BigDecimal productPrice = rs.getBigDecimal("prix_unitaire");
-                String productDescription = rs.getString("description");
-
-                Product product = new Product(productId, productName, productPrice, productDescription, restaurant);
-                order.addProduct(product);
-
-                orders.add(order);
-            }
-        }
-        return orders;
     }
 }

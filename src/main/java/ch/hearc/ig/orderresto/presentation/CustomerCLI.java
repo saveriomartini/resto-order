@@ -6,7 +6,6 @@ import ch.hearc.ig.orderresto.business.OrganizationCustomer;
 import ch.hearc.ig.orderresto.business.PrivateCustomer;
 
 import ch.hearc.ig.orderresto.persistence.CustomerDataMapper;
-//import ch.hearc.ig.orderresto.persistence.FakeDb;
 
 public class CustomerCLI extends AbstractCLI {
 
@@ -14,7 +13,7 @@ public class CustomerCLI extends AbstractCLI {
 
     public CustomerCLI() {
         try {
-            this.customerDataMapper = new CustomerDataMapper();
+            this.customerDataMapper = CustomerDataMapper.getInstance();
         } catch (Exception e) {
             e.printStackTrace();
         }
