@@ -5,7 +5,7 @@ import ch.hearc.ig.orderresto.business.RestoObject;
 import java.util.HashMap;
 import java.util.Map;
 
-public class AbstractRestoMapper implements RestoMapper {
+public abstract class AbstractRestoMapper implements RestoMapper {
     protected static Map<Long, RestoObject> cache = new HashMap<>();
 
 
