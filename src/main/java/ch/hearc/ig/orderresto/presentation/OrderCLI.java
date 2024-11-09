@@ -28,15 +28,14 @@ public class OrderCLI extends AbstractCLI {
             return null;
         }
         CustomerCLI customerCLI = new CustomerCLI();
-
-        Customer customer;
-        CustomerDataMapper customerDataMapper = new CustomerDataMapper();
+        Customer customer = null;
+        CustomerDataMapper customerDataMapper = CustomerDataMapper.getInstance();
         if (userChoice == 1) {
             customer = customerCLI.getExistingCustomer();
         } else {
             customer = customerCLI.createNewCustomer();
             customerDataMapper.insert(customer);
-
+            System.out.println("Nouveau client créé : " + customer.getId());
         }
 
         Order order = new Order(null, customer, restaurant, false, LocalDateTime.now());
@@ -51,45 +50,9 @@ public class OrderCLI extends AbstractCLI {
         customer.addOrder(order);
 
         this.ln("Merci pour votre commande!");
-
+        customerDataMapper.printIndentityMap();
         return order;
     }
-
-    /*public Order selectOrder() {
-        Customer customer = (new CustomerCLI()).getExistingCustomer();
-        if (customer == null) {
-            this.ln(String.format("Désolé, nous ne connaissons pas cette personne."));
-            return null;
-        }
-        Object[] orders = customer.getOrders().toArray();
-        if (orders.length == 0) {
-            this.ln(String.format("Désolé, il n'y a aucune commande pour %s", customer.getEmail()));
-            return null;
-        }
-        this.ln("Choisissez une commande:");
-        PrivateCustomer privateCustomer = (PrivateCustomer) customer;
-        System.out.println(privateCustomer.getFirstName()+" et "+privateCustomer.getLastName());
-        for (int i = 0 ; i < orders.length ; i++) {
-            Order order = (Order) orders[i];
-            LocalDateTime when = order.getWhen();
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy à hh:mm");
-            this.ln(String.format("%d. %.2f, le %s chez %s.", i, order.getTotalAmount(), when.format(formatter), order.getRestaurant().getName()));
-        }
-        int index = this.readIntFromUser(orders.length - 1);
-        return (Order) orders[index];
-    }
-
-    public void displayOrder(Order order) {
-        LocalDateTime when = order.getWhen();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy à hh:mm");
-        this.ln(String.format("Commande %.2f, le %s chez %s.:", order.getTotalAmount(), when.format(formatter), order.getRestaurant().getName()));
-        int index = 1;
-        for (Product product: order.getProducts()) {
-            this.ln(String.format("%d. %s", index, product));
-            index++;
-        }
-    }*/
-
     public void displayOrders() throws SQLException {
         Customer customer = (new CustomerCLI()).getExistingCustomer();
         if (customer == null) {
@@ -104,6 +67,7 @@ public class OrderCLI extends AbstractCLI {
         }
 
         this.ln("Voici les commandes pour " + customer.getEmail() + ":");
+
         for (Order order : allOrders) {
             LocalDateTime when = order.getWhen();
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy à HH:mm");
