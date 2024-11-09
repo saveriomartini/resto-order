@@ -20,9 +20,9 @@ public class IdentityMap<T>{
     public boolean contains (Long id){
         return map.containsKey(id);
     }
-    public Collection<T> values() {
-        return map.values();
-    }
+//    public Collection<T> values() {
+//        return map.values();
+//    }
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -31,6 +31,4 @@ public class IdentityMap<T>{
         }
         return sb.toString();
     }
-
-
 }

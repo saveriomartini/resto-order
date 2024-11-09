@@ -9,12 +9,26 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 public class RestaurantDataMapper {
 
-    public IdentityMap<Restaurant> identityMapRestaurant = new IdentityMap<>();
+    protected IdentityMap<Restaurant> identityMapRestaurant = new IdentityMap<>();
+    private static RestaurantDataMapper instanceOfRestaurantDataMapper;
+
+    private RestaurantDataMapper() {
+    }
+
+    public static RestaurantDataMapper getInstance() {
+        if (instanceOfRestaurantDataMapper == null) {
+            instanceOfRestaurantDataMapper = new RestaurantDataMapper();
+        }
+        return instanceOfRestaurantDataMapper;
+    }
+
     public Restaurant findById(Long id) {
 
         Restaurant restaurant = null;
@@ -35,6 +49,9 @@ public class RestaurantDataMapper {
                                 resultSet.getString("rue"),
                                 resultSet.getString("num_rue")
                         )
+                        //restaurant.getProductsCatalog().add() a finir !!
+
+
                 );
             }
             identityMapRestaurant.put(id, restaurant);
@@ -51,8 +68,9 @@ public class RestaurantDataMapper {
             Connection connection = DbUtils.getConnection();
             java.sql.PreparedStatement statement = connection.prepareStatement("SELECT * FROM restaurant");
             java.sql.ResultSet resultSet = statement.executeQuery();
+            Restaurant restaurant;
             while (resultSet.next()) {
-                restaurants.add(new Restaurant(
+                restaurant= new Restaurant(
                         resultSet.getLong("numero"),
                         resultSet.getString("nom"),
                         new Address(
@@ -62,7 +80,9 @@ public class RestaurantDataMapper {
                                 resultSet.getString("rue"),
                                 resultSet.getString("num_rue")
                         )
-                ));
+                );
+                restaurants.add(restaurant);
+                identityMapRestaurant.put(restaurant.getId(), restaurant);
             }
             return restaurants;
         } catch (java.sql.SQLException e) {

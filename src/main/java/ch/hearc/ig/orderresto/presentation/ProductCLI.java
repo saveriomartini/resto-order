@@ -11,7 +11,7 @@ import java.time.format.DateTimeFormatter;
 
 public class ProductCLI extends AbstractCLI {
 
-    private ProductDataMapper productDataMapper = new ProductDataMapper();
+    private ProductDataMapper productDataMapper = ProductDataMapper.getInstance();
 
     public Product getRestaurantProduct(Restaurant restaurant) {
         this.ln(String.format("Bienvenue chez %s. Choisissez un de nos produits:", restaurant.getName()));
