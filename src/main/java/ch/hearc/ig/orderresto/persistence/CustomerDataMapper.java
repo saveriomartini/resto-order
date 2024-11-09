@@ -4,7 +4,7 @@ import ch.hearc.ig.orderresto.business.Address;
 import ch.hearc.ig.orderresto.business.Customer;
 import ch.hearc.ig.orderresto.business.OrganizationCustomer;
 import ch.hearc.ig.orderresto.business.PrivateCustomer;
-import ch.hearc.ig.orderresto.service.DbUtils;
+import ch.hearc.ig.orderresto.services.DbUtils;
 import oracle.jdbc.OraclePreparedStatement;
 import oracle.jdbc.OracleTypes;
 

@@ -2,7 +2,7 @@ package ch.hearc.ig.orderresto.persistence;
 
 import ch.hearc.ig.orderresto.business.Product;
 import ch.hearc.ig.orderresto.business.Restaurant;
-import ch.hearc.ig.orderresto.service.DbUtils;
+import ch.hearc.ig.orderresto.services.DbUtils;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -55,7 +55,7 @@ public class ProductDataMapper {
         return null;
     }
 
-    public Set<Product> getAllProductsByRestaurant( Long restaurantId) {
+    public Set<Product> getAllProductsByRestaurant(Long restaurantId) {
         try {
             Connection connection = DbUtils.getConnection();
             PreparedStatement statement = connection.prepareStatement("SELECT * FROM produit WHERE fk_resto = ?");

@@ -3,7 +3,7 @@ package ch.hearc.ig.orderresto.persistence;
 import ch.hearc.ig.orderresto.business.Address;
 import ch.hearc.ig.orderresto.business.Product;
 import ch.hearc.ig.orderresto.business.Restaurant;
-import ch.hearc.ig.orderresto.service.DbUtils;
+import ch.hearc.ig.orderresto.services.DbUtils;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

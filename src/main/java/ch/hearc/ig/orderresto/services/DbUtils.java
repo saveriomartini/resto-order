@@ -1,9 +1,8 @@
-package ch.hearc.ig.orderresto.service;
+package ch.hearc.ig.orderresto.services;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.sql.Wrapper;
 
 public class DbUtils {
 

@@ -1,9 +1,11 @@
 package ch.hearc.ig.orderresto.presentation;
 
-import ch.hearc.ig.orderresto.business.*;
-//import ch.hearc.ig.orderresto.persistence.FakeDb;
+import ch.hearc.ig.orderresto.business.Customer;
+import ch.hearc.ig.orderresto.business.Order;
+import ch.hearc.ig.orderresto.business.Product;
+import ch.hearc.ig.orderresto.business.Restaurant;
 import ch.hearc.ig.orderresto.persistence.CustomerDataMapper;
-import ch.hearc.ig.orderresto.persistence.OrderDataMapper;
+import ch.hearc.ig.orderresto.services.OrderServices;
 
 import java.sql.SQLException;
 import java.time.LocalDateTime;
@@ -12,13 +14,13 @@ import java.util.Set;
 
 public class OrderCLI extends AbstractCLI {
 
-    private OrderDataMapper orderDataMapper;
+    private OrderServices orderServices;
 
     public OrderCLI() {
-        this.orderDataMapper = OrderDataMapper.getInstance();
+        this.orderServices = new OrderServices();
     }
 
-        public Order createNewOrder() throws SQLException {
+    public Order createNewOrder() throws SQLException {
         this.ln("======================================================");
         Restaurant restaurant = (new RestaurantCLI()).getExistingRestaurant();
         Product product = (new ProductCLI()).getRestaurantProduct(restaurant);
@@ -35,30 +37,20 @@ public class OrderCLI extends AbstractCLI {
         }
         CustomerCLI customerCLI = new CustomerCLI();
         Customer customer = null;
-        CustomerDataMapper customerDataMapper = CustomerDataMapper.getInstance();
         if (userChoice == 1) {
             customer = customerCLI.getExistingCustomer();
         } else {
             customer = customerCLI.createNewCustomer();
-            customerDataMapper.insert(customer);
+            CustomerDataMapper.getInstance().insert(customer);
             System.out.println("Nouveau client créé : " + customer.getId());
         }
 
-        Order order = new Order(null, customer, restaurant, false, LocalDateTime.now());
-        order.addProduct(product);
-
-        OrderDataMapper orderDataMapper = new OrderDataMapper();
-        orderDataMapper.insertOrder(order);
-        orderDataMapper.insertOrderProducts(order);
-
-        product.addOrder(order);
-        restaurant.addOrder(order);
-        customer.addOrder(order);
-
+        Order order = orderServices.createNewOrder(customer, restaurant, product);
         this.ln("Merci pour votre commande!");
-        customerDataMapper.printIndentityMap();
+        System.out.println("Je suis passé par là : createNewOrder de OrderCLI");
         return order;
     }
+
     public void displayOrders() throws SQLException {
         Customer customer = (new CustomerCLI()).getExistingCustomer();
         if (customer == null) {
@@ -66,13 +58,13 @@ public class OrderCLI extends AbstractCLI {
             return;
         }
 
-
-        Set<Order> allOrders = OrderDataMapper.getInstance().findAllOrdersByCustomer(customer);
+        Set<Order> allOrders = orderServices.findAllOrdersByCustomer(customer);
         if (allOrders.isEmpty()) {
             this.ln(String.format("Désolé, il n'y a aucune commande pour %s", customer.getEmail()));
             return;
         }
 
+        System.out.println("Je suis passé par là : displayOrders de OrderCLI");
         this.ln("Voici les commandes pour " + customer.getEmail() + ":");
 
         for (Order order : allOrders) {

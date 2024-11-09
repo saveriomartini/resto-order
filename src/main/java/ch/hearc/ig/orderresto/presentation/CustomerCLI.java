@@ -6,45 +6,37 @@ import ch.hearc.ig.orderresto.business.OrganizationCustomer;
 import ch.hearc.ig.orderresto.business.PrivateCustomer;
 
 import ch.hearc.ig.orderresto.persistence.CustomerDataMapper;
+import ch.hearc.ig.orderresto.services.CustomerServices;
+
+import java.sql.SQLException;
 
 public class CustomerCLI extends AbstractCLI {
 
-    private CustomerDataMapper customerDataMapper;
+    private CustomerServices customerServices;
 
     public CustomerCLI() {
-        try {
-            this.customerDataMapper = CustomerDataMapper.getInstance();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        this.customerServices = new CustomerServices();
     }
 
     public Customer getExistingCustomer() {
         this.ln("Quelle est votre addresse email?");
         String email = this.readEmailFromUser();
-        Customer customer = customerDataMapper.findCustomerByEmail(email);
+        Customer customer = null;
+        try {
+            customer = customerServices.getExistingCustomerEmail(email);
+            if (customer != null) {
+                Long customerId = customer.getId();
+                customer = customerServices.getExistingCustomerId(customerId);
+            }
+        } catch (SQLException e) {
+            this.ln("Erreur lors de la récupération du client.");
+            e.printStackTrace();
+        }
         if (customer != null && customer.getEmail().equals(email)) {
+            System.out.println("Je suis passé par là : getExistingCustomer de CustomerCLI");
             return customer;
         } else {
             return null;
-        }
-    }
-
-    public void getCustomerById(Long id) {
-        Customer customer = customerDataMapper.findCustomerById(id);
-        if (customer != null) {
-            this.ln("Le client est le suivant : " + customer);
-        } else {
-            this.ln("Client non trouvé.");
-        }
-    }
-
-    public void getCustomerByEmail(String email) {
-        Customer customer = customerDataMapper.findCustomerByEmail(email);
-        if (customer != null) {
-            this.ln("Le client est le suivant : " + customer);
-        } else {
-            this.ln("Client non trouvé.");
         }
     }
 
@@ -81,6 +73,13 @@ public class CustomerCLI extends AbstractCLI {
             customer = new OrganizationCustomer(null, phone, email, address, name, legalForm);
         }
 
+        try {
+            customer = customerServices.createNewCustomer(customer);
+        } catch (SQLException e) {
+            this.ln("Erreur lors de la création du client.");
+            e.printStackTrace();
+        }
+        System.out.println("Je suis passé par là : createNewCustomer de CustomerCLI");
         return customer;
     }
 }
