@@ -12,9 +12,9 @@ import java.sql.*;
 import java.util.HashMap;
 import java.util.Map;
 
-public class CustomerDataMapper {
+public class CustomerDataMapper extends AbstractRestoMapper {
 
-    private IdentityMap<Customer> identityMapCustomer = new IdentityMap<>();
+
     private Map<String, Customer> emailToCustomerMap = new HashMap<>();
     private static CustomerDataMapper instanceCustomerDataMapper;
 
@@ -30,8 +30,8 @@ public class CustomerDataMapper {
 
     public Customer findCustomerById(Long id) {
 
-        if (identityMapCustomer.contains(id)) {
-            return identityMapCustomer.get(id);
+        if (cache.containsKey(id)) {
+            return (Customer) cache.get(id);
         }
         try {
             Connection dbConnect = DbUtils.getConnection();
@@ -46,7 +46,7 @@ public class CustomerDataMapper {
                     } else {
                         customer = findPrivateByID(id);
                     }
-                    identityMapCustomer.put(id, customer);
+                    cache.put(id, customer);
                     emailToCustomerMap.put(customer.getEmail(), customer);
                     return customer;
                 } else {
@@ -78,7 +78,7 @@ public class CustomerDataMapper {
                     } else {
                         customer= findPrivateByID(idCustomer);
                     }
-                    identityMapCustomer.put(idCustomer, customer);
+                    cache.put(idCustomer, customer);
                     emailToCustomerMap.put(email, customer);
                     return customer;
                 } else {
@@ -94,8 +94,8 @@ public class CustomerDataMapper {
     public Customer findOrganizationByID(Long id) throws SQLException {
 
 
-        if (identityMapCustomer.contains(id)) {
-            return identityMapCustomer.get(id);
+        if (cache.containsKey(id)) {
+            return (Customer) cache.get(id);
         }
 
         Connection dbConnect = DbUtils.getConnection();
@@ -129,8 +129,8 @@ public class CustomerDataMapper {
 
     public Customer findPrivateByID(Long id) throws SQLException {
 
-        if (identityMapCustomer.contains(id)) {
-            return identityMapCustomer.get(id);
+        if (cache.containsKey(id)) {
+            return (Customer) cache.get(id);
         }
         Connection dbConnect = DbUtils.getConnection();
         try (PreparedStatement ps = dbConnect.prepareStatement("SELECT * FROM CLIENT WHERE numero = ?")) {
@@ -195,7 +195,7 @@ public class CustomerDataMapper {
                     if (rs.next()) {
                         idCustomer = rs.getLong(1);
                         customer.setId(idCustomer);
-                        identityMapCustomer.put(idCustomer, customer);
+                        cache.put(idCustomer, customer);
                         emailToCustomerMap.put(customer.getEmail(), customer);
                         System.out.println("Customer inserted with id: " + idCustomer);
                     }
@@ -209,6 +209,6 @@ public class CustomerDataMapper {
 
     // Pour tester seulement, ce n'est pas utile pour le projet
     public void printIndentityMap(){
-        System.out.println(identityMapCustomer.toString());
+        System.out.println(cache.toString());
     }
 }

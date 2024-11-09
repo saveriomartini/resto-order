@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Set;
 
-public class Product {
+public class Product extends AbstractRestoObject {
 
     private Long id;
     private String name;

@@ -10,7 +10,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Set;
 
-public class ProductDataMapper {
+public class ProductDataMapper extends AbstractRestoMapper {
 
     private static ProductDataMapper instanceOfProductDataMapper;
 
@@ -24,11 +24,11 @@ public class ProductDataMapper {
         return instanceOfProductDataMapper;
     }
 
-    protected IdentityMap<Product> identityMapProduct = new IdentityMap<>();
+
 
     public Product findById(Long id) {
-        if (identityMapProduct.contains(id)) {
-            return identityMapProduct.get(id);
+        if (cache.containsKey(id)) {
+            return (Product) cache.get(id);
         }
         try {
             Connection connection = DbUtils.getConnection();
@@ -46,7 +46,7 @@ public class ProductDataMapper {
                         resultSet.getString("description"),
                         resto
                 );
-                identityMapProduct.put(id, product);
+                cache.put(id, product);
                 return product;
             }
         } catch (SQLException e) {
@@ -59,10 +59,11 @@ public class ProductDataMapper {
 
         RestaurantDataMapper restaurantDataMapper = RestaurantDataMapper.getInstance();
         System.out.println("Checking if restaurantId is in identityMapRestaurant: " + restaurantId);
-        System.out.println("Current identityMapRestaurant: " + restaurantDataMapper.identityMapRestaurant.toString());
-        if (restaurantDataMapper.identityMapRestaurant.contains(restaurantId)) {
+        System.out.println("Current identityMapRestaurant: " + restaurantDataMapper.cache.toString());
+        if (restaurantDataMapper.cache.containsKey(restaurantId)) {
             System.out.println("Restaurant found in identityMapRestaurant");
-            return restaurantDataMapper.identityMapRestaurant.get(restaurantId).getProductsCatalog();
+            Restaurant resto = (Restaurant) restaurantDataMapper.cache.get(restaurantId);
+            return resto.getProductsCatalog();
         } else {
             System.out.println("Restaurant not found in identityMapRestaurant, fetching from database");
             Restaurant resto = restaurantDataMapper.findById(restaurantId);
@@ -80,11 +81,11 @@ public class ProductDataMapper {
                             resultSet.getString("description"),
                             resto
                     );
-                    identityMapProduct.put(productId, product);
+                    cache.put(productId, product);
                     resto.registerProduct(product);
                 }
-                restaurantDataMapper.identityMapRestaurant.put(resto.getId(), resto);
-                System.out.println("Updated identityMapRestaurant: " + restaurantDataMapper.identityMapRestaurant.toString());
+                restaurantDataMapper.cache.put(resto.getId(), resto);
+                System.out.println("Updated identityMapRestaurant: " + restaurantDataMapper.cache.toString());
             } catch (SQLException e) {
                 throw new RuntimeException("Impossible de récupérer les produits.", e);
             }

@@ -1,6 +1,6 @@
 package ch.hearc.ig.orderresto.business;
 
-public class Address {
+public class Address extends AbstractRestoObject {
 
     private String countryCode;
     private String postalCode;

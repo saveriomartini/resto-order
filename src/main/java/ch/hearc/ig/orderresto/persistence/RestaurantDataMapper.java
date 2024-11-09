@@ -14,9 +14,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public class RestaurantDataMapper {
+public class RestaurantDataMapper extends AbstractRestoMapper {
 
-    protected IdentityMap<Restaurant> identityMapRestaurant = new IdentityMap<>();
+
     private static RestaurantDataMapper instanceOfRestaurantDataMapper;
 
     private RestaurantDataMapper() {
@@ -34,9 +34,9 @@ public class RestaurantDataMapper {
         Restaurant restaurant = null;
         try {
             Connection connection = DbUtils.getConnection();
-            java.sql.PreparedStatement statement = connection.prepareStatement("SELECT * FROM restaurant WHERE numero = ?");
+            PreparedStatement statement = connection.prepareStatement("SELECT * FROM restaurant WHERE numero = ?");
             statement.setLong(1, id);
-            java.sql.ResultSet resultSet = statement.executeQuery();
+            ResultSet resultSet = statement.executeQuery();
 
             if (resultSet.next()) {
                 restaurant= new Restaurant(
@@ -54,8 +54,8 @@ public class RestaurantDataMapper {
 
                 );
             }
-            identityMapRestaurant.put(id, restaurant);
-        } catch (java.sql.SQLException e) {
+            cache.put(id, restaurant);
+        } catch (SQLException e) {
             throw new RuntimeException("Impossible de récupérer le restaurant.", e);
         }
         return restaurant;
@@ -66,8 +66,8 @@ public class RestaurantDataMapper {
         Set<Restaurant> restaurants = new HashSet<>();
         try {
             Connection connection = DbUtils.getConnection();
-            java.sql.PreparedStatement statement = connection.prepareStatement("SELECT * FROM restaurant");
-            java.sql.ResultSet resultSet = statement.executeQuery();
+            PreparedStatement statement = connection.prepareStatement("SELECT * FROM restaurant");
+            ResultSet resultSet = statement.executeQuery();
             Restaurant restaurant;
             while (resultSet.next()) {
                 restaurant= new Restaurant(
@@ -82,10 +82,10 @@ public class RestaurantDataMapper {
                         )
                 );
                 restaurants.add(restaurant);
-                identityMapRestaurant.put(restaurant.getId(), restaurant);
+                cache.put(restaurant.getId(), restaurant);
             }
             return restaurants;
-        } catch (java.sql.SQLException e) {
+        } catch (SQLException e) {
             throw new RuntimeException("Impossible de récupérer les restaurants.", e);
         }
     }

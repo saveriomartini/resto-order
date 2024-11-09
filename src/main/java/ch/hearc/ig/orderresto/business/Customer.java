@@ -3,7 +3,7 @@ package ch.hearc.ig.orderresto.business;
 import java.util.HashSet;
 import java.util.Set;
 
-public abstract class Customer {
+public abstract class Customer extends AbstractRestoObject {
 
     private Long id;
     private String phone;

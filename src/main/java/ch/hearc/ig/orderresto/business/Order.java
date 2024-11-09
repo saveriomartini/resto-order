@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
-public class Order {
+public class Order extends AbstractRestoObject {
 
     private Long id;
     private Customer customer;
