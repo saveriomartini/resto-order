@@ -27,13 +27,13 @@ public class PrivateCustomer extends Customer {
 
     @Override
     public String toString() {
-        return "ID No. " + getId() ;
-                /*", Client privé" +
+        return ", Client privé" +
+                ", ID : " + getId() +
                 ", Nom : '" + lastName + '\'' +
                 ", Prénom : '" + firstName + '\'' +
                 ", Addresse : " + getAddress() +
                 ", Telephone : '" + getPhone() + '\'' +
                 ", Email : '" + getEmail() + '\'' +
-                ", Genre : '" + (gender == null ? "Femme" : "Homme") + '\'';*/
+                ", Genre : '" + (gender == null ? "Femme" : "Homme") + '\'';
     }
 }

@@ -2,7 +2,7 @@ package ch.hearc.ig.orderresto.persistence;
 
 import ch.hearc.ig.orderresto.business.Product;
 import ch.hearc.ig.orderresto.business.Restaurant;
-import ch.hearc.ig.orderresto.services.DbUtils;
+import ch.hearc.ig.orderresto.service.DbUtils;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -62,6 +62,39 @@ public class ProductDataMapper {
         return null;
     }
 
+    public Set<Product> getAllProductsByRestaurant(Long restaurantId) {
+
+        Set<Product> products = new HashSet<>();
+        for (Product product : identityMapProduct.values()) {
+            if (product.getRestaurant().getId().equals(restaurantId)) {
+                products.add(product);
+            }
+        }
+
+        if (!products.isEmpty()) {
+            System.out.println("Products from identity map");
+            return products;
+        }
+
+        try {
+            Connection connection = DbUtils.getConnection();
+            PreparedStatement statement = connection.prepareStatement("SELECT * FROM produit WHERE fk_resto = ?");
+            statement.setLong(1, restaurantId);
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                long productId = resultSet.getLong("numero");
+                Product product = new Product(
+                        resultSet.getLong("numero"),
+                        resultSet.getString("nom"),
+                        resultSet.getBigDecimal("prix_unitaire"),
+                        resultSet.getString("description"),
+                        RestaurantDataMapper.getInstance().findById(restaurantId)
+                );
+                identityMapProduct.put(productId, product);
+                products.add(product);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Impossible de récupérer les produits.", e);
     // Récupération de tous les produits d'un restaurant en fonction de l'ID du restaurant saisi
     public Set<Product> getAllProductsByRestaurant(Long restaurantId) {
         Set<Product> products = new HashSet<>();
@@ -97,7 +130,6 @@ public class ProductDataMapper {
                 throw new RuntimeException("Impossible de récupérer les produits.", e);
             }
         }
-
         return products;
     }
 }

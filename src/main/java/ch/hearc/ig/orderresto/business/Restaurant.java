@@ -1,5 +1,7 @@
 package ch.hearc.ig.orderresto.business;
 
+import ch.hearc.ig.orderresto.persistence.ProductDataMapper;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -36,6 +38,10 @@ public class Restaurant {
     }
 
     public Set<Product> getProductsCatalog() {
+        if (productsCatalog == null) {
+            ProductDataMapper productDataMapper = ProductDataMapper.getInstance();
+            productsCatalog = productDataMapper.getAllProductsByRestaurant(id);
+        }
         return productsCatalog;
     }
 

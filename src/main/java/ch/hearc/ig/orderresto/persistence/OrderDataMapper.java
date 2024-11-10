@@ -4,7 +4,7 @@ import ch.hearc.ig.orderresto.business.Customer;
 import ch.hearc.ig.orderresto.business.Order;
 import ch.hearc.ig.orderresto.business.Product;
 import ch.hearc.ig.orderresto.business.Restaurant;
-import ch.hearc.ig.orderresto.services.DbUtils;
+import ch.hearc.ig.orderresto.service.DbUtils;
 import oracle.jdbc.OraclePreparedStatement;
 import oracle.jdbc.OracleTypes;
 
@@ -96,11 +96,12 @@ public class OrderDataMapper {
                 ps.setTimestamp(4, java.sql.Timestamp.valueOf(order.getWhen()));
                 ps.registerReturnParameter(5, OracleTypes.NUMBER);
                 ps.executeUpdate();
+
                 try (ResultSet rs = ps.getReturnResultSet()) {
                     if (rs.next()) {
-                        order.setId(rs.getLong(1));
-                        OrderDataMapper.getInstance().identityMapOrder.put(order.getId(), order);
 
+                        order.setId(rs.getLong(1));
+                        System.out.println("Order id: " + order.getId());
                     }
                 }
             }
