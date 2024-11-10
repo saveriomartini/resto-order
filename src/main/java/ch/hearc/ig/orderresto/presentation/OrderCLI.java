@@ -44,7 +44,6 @@ public class OrderCLI extends AbstractCLI {
             customer = customerCLI.getExistingCustomer();
         } else {
             customer = customerCLI.createNewCustomer();
-            //CustomerDataMapper.getInstance().insert(customer);
             System.out.println("Nouveau client créé : " + customer.getId());
         }
 
