@@ -33,6 +33,15 @@ public class OrderDataMapper extends AbstractDataMapper {
         stmt.setTimestamp(4, Timestamp.valueOf(order.getWhen()));
     }
 
+    /**
+     * @param id
+     * @return
+     */
+    @Override
+    protected String findByIdStatement(Long id) {
+        return "";
+    }
+
 
     @Override
     protected String findStatement() {
@@ -45,6 +54,42 @@ public class OrderDataMapper extends AbstractDataMapper {
     @Override
     protected String findAllStatement() {
         return "";
+    }
+
+    /**
+     * @return
+     */
+    @Override
+    protected String updateStatement() {
+        return "";
+    }
+
+    /**
+     * @param restoObject
+     * @param stmt
+     * @throws SQLException
+     */
+    @Override
+    protected void doUpdate(RestoObject restoObject, PreparedStatement stmt) throws SQLException {
+
+    }
+
+    /**
+     * @return
+     */
+    @Override
+    protected String deleteStatement() {
+        return "";
+    }
+
+    /**
+     * @param restoObject
+     * @param stmt
+     * @throws SQLException
+     */
+    @Override
+    protected void doDelete(RestoObject restoObject, PreparedStatement stmt) throws SQLException {
+
     }
 
 

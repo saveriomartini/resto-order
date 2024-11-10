@@ -1,6 +1,5 @@
 package ch.hearc.ig.orderresto.persistence;
 
-import ch.hearc.ig.orderresto.business.Restaurant;
 import ch.hearc.ig.orderresto.business.RestoObject;
 import ch.hearc.ig.orderresto.service.DbUtils;
 
@@ -22,6 +21,16 @@ public abstract class AbstractDataMapper {
     public Long insert(RestoObject restoObject) {
         PreparedStatement insertStatement = null;
         try {
+            // Prepare the statement using the insert SQL statement
+            insertStatement = DbUtils.getConnection().prepareStatement(insertStatement(), PreparedStatement.RETURN_GENERATED_KEYS);
+
+            // Populate the statement with the object's data
+            doInsert(restoObject, insertStatement);
+
+            // Execute the statement
+            insertStatement.executeUpdate();
+
+            // Retrieve generated keys
             ResultSet generatedKeys = insertStatement.getGeneratedKeys();
             if (generatedKeys.next()) {
                 Long id = generatedKeys.getLong(1);
@@ -33,13 +42,32 @@ public abstract class AbstractDataMapper {
             }
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            DbUtils.cleanUp(insertStatement);
         }
         return null;
     }
 
 
+    protected RestoObject load(ResultSet rs) throws SQLException {
+        Long id = rs.getLong(1);
+        if (cache.containsKey(id)) {
+            return cache.get(id);
+        }
+        RestoObject result = doLoad(id, rs);
+        cache.put(id, result);
+        return result;
+    }
+
+
+    protected abstract String findByIdStatement(Long id);
+
+    protected abstract RestoObject doLoad(Long id, ResultSet rs) throws SQLException;
+
+
     //Read
     protected abstract String findStatement();
+
     protected abstract String findAllStatement();
 
     protected RestoObject abstractFind(Long id) {
@@ -64,14 +92,14 @@ public abstract class AbstractDataMapper {
         return null;
     }
 
-    public Set<Restaurant> AbstractFindAll() {
-        Set<Restaurant> result = new HashSet<>();
+    protected Set<RestoObject> abstractFindAll() {
+        Set<RestoObject> result = new HashSet<>();
         PreparedStatement findAllStatement = null;
         try {
             findAllStatement = DbUtils.getConnection().prepareStatement(findAllStatement());
             ResultSet rs = findAllStatement.executeQuery();
             while (rs.next()) {
-                result.add((Restaurant) load(rs));
+                result.add(load(rs));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -79,38 +107,52 @@ public abstract class AbstractDataMapper {
         return result;
     }
 
-
-
-
-    protected RestoObject load(ResultSet rs) throws SQLException {
-        Long id = rs.getLong(1);
-        if (cache.containsKey(id)) {
-            return cache.get(id);
+    protected Set<RestoObject> abstractFindAllById(Long id) {
+        Set<RestoObject> result = new HashSet<>();
+        PreparedStatement findAllStatement = null;
+        try {
+            findAllStatement = DbUtils.getConnection().prepareStatement(findByIdStatement(id));
+            findAllStatement.setLong(1, id);
+            ResultSet rs = findAllStatement.executeQuery();
+            while (rs.next()) {
+                result.add(load(rs));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        RestoObject result = doLoad(id, rs);
-        cache.put(id, result);
+        finally {
+            DbUtils.cleanUp(findAllStatement);
+        }
         return result;
     }
 
-
-    protected abstract RestoObject doLoad(Long id, ResultSet rs) throws SQLException;
-
-
     //Update
+    protected abstract String updateStatement();
+
+    protected abstract void doUpdate(RestoObject restoObject, PreparedStatement stmt) throws SQLException;
+
     public void update(RestoObject restoObject) {
-        // TODO
+        PreparedStatement updateStatement = null;
+        try {
+            doUpdate(restoObject, updateStatement);
+            updateStatement.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     //Delete
+    protected abstract String deleteStatement();
+
+    protected abstract void doDelete(RestoObject restoObject, PreparedStatement stmt) throws SQLException;
+
     public void delete(RestoObject restoObject) {
-        // TODO
+        PreparedStatement deleteStatement = null;
+        try {
+            doDelete(restoObject, deleteStatement);
+            deleteStatement.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
-
-
-
-
-
 }
-
-
-

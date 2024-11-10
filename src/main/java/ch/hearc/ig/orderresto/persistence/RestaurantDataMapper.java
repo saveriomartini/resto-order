@@ -26,7 +26,7 @@ public class RestaurantDataMapper extends AbstractDataMapper {
         return "INSERT INTO restaurant" + COLUMNS + "VALUES (?,?,?,?,?,?)";
     }
 
-
+    //Create
     protected void doInsert(RestoObject restoObject, PreparedStatement stmt) throws SQLException {
         Restaurant restaurant = (Restaurant) restoObject;
         stmt.setString(1, restaurant.getName());
@@ -37,17 +37,14 @@ public class RestaurantDataMapper extends AbstractDataMapper {
         stmt.setString(6, restaurant.getAddress().getStreetNumber());
     }
 
-
+    /**
+     * @param id
+     * @return
+     */
     @Override
-    protected String findStatement() {
-        return "SELECT * FROM restaurant WHERE numero = ?";
+    protected String findByIdStatement(Long id) {
+        return "";
     }
-
-    protected String findAllStatement() {
-        return "SELECT * FROM restaurant";
-    }
-
-
 
 
     @Override
@@ -66,13 +63,60 @@ public class RestaurantDataMapper extends AbstractDataMapper {
     }
 
 
+    //Read
+    @Override
+    protected String findStatement() {
+        return "SELECT * FROM restaurant WHERE numero = ?";
+    }
+    @Override
+    protected String findAllStatement() {
+        return "SELECT * FROM restaurant";
+    }
+
+    /**
+     * @return
+     */
+    @Override
+    protected String updateStatement() {
+        return "";
+    }
+
+    /**
+     * @param restoObject
+     * @param stmt
+     * @throws SQLException
+     */
+    @Override
+    protected void doUpdate(RestoObject restoObject, PreparedStatement stmt) throws SQLException {
+
+    }
+
+    /**
+     * @return
+     */
+    @Override
+    protected String deleteStatement() {
+        return "";
+    }
+
+    /**
+     * @param restoObject
+     * @param stmt
+     * @throws SQLException
+     */
+    @Override
+    protected void doDelete(RestoObject restoObject, PreparedStatement stmt) throws SQLException {
+
+    }
+
+
     protected Restaurant find(long id) {
         return (Restaurant) abstractFind(id);
     }
-
-    protected Set<Restaurant> findAll() {
-        return AbstractFindAll();
+    public Set<RestoObject> findAll() {
+        return abstractFindAll();
     }
+
 
 
 }

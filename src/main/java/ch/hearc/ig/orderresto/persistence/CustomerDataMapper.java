@@ -50,6 +50,15 @@ public class CustomerDataMapper extends AbstractDataMapper {
         }
     }
 
+    /**
+     * @param id
+     * @return
+     */
+    @Override
+    protected String findByIdStatement(Long id) {
+        return "";
+    }
+
     @Override
     protected String findStatement() {
         return "SELECT * FROM CLIENT WHERE numero = ?";
@@ -61,6 +70,42 @@ public class CustomerDataMapper extends AbstractDataMapper {
     @Override
     protected String findAllStatement() {
         return "";
+    }
+
+    /**
+     * @return
+     */
+    @Override
+    protected String updateStatement() {
+        return "";
+    }
+
+    /**
+     * @param restoObject
+     * @param stmt
+     * @throws SQLException
+     */
+    @Override
+    protected void doUpdate(RestoObject restoObject, PreparedStatement stmt) throws SQLException {
+
+    }
+
+    /**
+     * @return
+     */
+    @Override
+    protected String deleteStatement() {
+        return "";
+    }
+
+    /**
+     * @param restoObject
+     * @param stmt
+     * @throws SQLException
+     */
+    @Override
+    protected void doDelete(RestoObject restoObject, PreparedStatement stmt) throws SQLException {
+
     }
 
     public Customer findCustomerByEmail(String email) {

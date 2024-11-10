@@ -4,6 +4,7 @@ import ch.hearc.ig.orderresto.business.*;
 //import ch.hearc.ig.orderresto.persistence.FakeDb;
 import ch.hearc.ig.orderresto.persistence.CustomerDataMapper;
 import ch.hearc.ig.orderresto.persistence.OrderDataMapper;
+import ch.hearc.ig.orderresto.services.ProductServices;
 
 import java.sql.SQLException;
 import java.time.LocalDateTime;
@@ -14,8 +15,9 @@ public class OrderCLI extends AbstractCLI {
 
     public Order createNewOrder() throws SQLException {
         this.ln("======================================================");
+        this.ln("Bienvenue chez OrderResto!");
         Restaurant restaurant = (new RestaurantCLI()).getExistingRestaurant();
-
+        Product product = (new ProductCLI()).getRestaurantProduct(restaurant);
         this.ln("======================================================");
         this.ln("0. Annuler");
         this.ln("1. Je suis un client existant");
@@ -38,7 +40,6 @@ public class OrderCLI extends AbstractCLI {
         }
 
         Order order = new Order(null, customer, restaurant, false, LocalDateTime.now());
-        Product product = (new ProductCLI()).getRestaurantProduct(restaurant);
         order.addProduct(product);
 
         OrderDataMapper orderDataMapper = OrderDataMapper.getInstance();
