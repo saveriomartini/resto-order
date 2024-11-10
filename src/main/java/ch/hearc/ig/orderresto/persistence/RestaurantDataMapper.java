@@ -1,14 +1,11 @@
 package ch.hearc.ig.orderresto.persistence;
 
 import ch.hearc.ig.orderresto.business.Address;
-import ch.hearc.ig.orderresto.business.Product;
+
 import ch.hearc.ig.orderresto.business.Restaurant;
 import ch.hearc.ig.orderresto.services.DbUtils;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -85,32 +82,6 @@ public class RestaurantDataMapper {
         } catch (java.sql.SQLException e) {
             throw new RuntimeException("Impossible de récupérer les restaurants.", e);
         }
-    }
-
-    public Set<Product> findProductsByRestaurantId(Long restaurantId) {
-        Set<Product> products = new HashSet<>();
-        Restaurant restaurant = findById(restaurantId);
-        try {
-            Connection connection = DbUtils.getConnection();
-            PreparedStatement statement = connection.prepareStatement(
-                    "SELECT * FROM product WHERE restaurant_id = ?"
-            );
-            statement.setLong(1, restaurantId);
-            ResultSet resultSet = statement.executeQuery();
-            while (resultSet.next()) {
-
-                products.add(new Product(
-                        resultSet.getLong("id"),
-                        resultSet.getString("name"),
-                        resultSet.getBigDecimal("unit_price"),
-                        resultSet.getString("description"),
-                        restaurant
-                ));
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException("Impossible de récupérer les produits.", e);
-        }
-        return products;
     }
 
 }

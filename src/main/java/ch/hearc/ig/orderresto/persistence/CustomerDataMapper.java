@@ -210,12 +210,8 @@ public class CustomerDataMapper {
                         idCustomer = rs.getLong(1);
                         customer.setId(idCustomer);
                         identityMapCustomer.put(idCustomer, customer);
-                        System.out.println("Client ajouté avec l'ID : " + idCustomer);
-                        idCustomer = rs.getLong(1);
-                        customer.setId(idCustomer);
-                        identityMapCustomer.put(idCustomer, customer);
                         emailToCustomerMap.put(customer.getEmail(), customer);
-                        System.out.println("Customer inserted with id: " + idCustomer);
+                        System.out.println("Client ajouté avec l'ID : " + idCustomer);
                     }
                 }
             }
