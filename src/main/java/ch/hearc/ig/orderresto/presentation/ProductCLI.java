@@ -5,14 +5,13 @@ import ch.hearc.ig.orderresto.business.Restaurant;
 import ch.hearc.ig.orderresto.services.ProductServices;
 
 import java.sql.SQLException;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 
 public class ProductCLI extends AbstractCLI {
 
-    private ProductServices productServices;
+    private final ProductServices productServices;
 
+    // Initialisation de l'instance de ProductServices
     public ProductCLI() {
         this.productServices = new ProductServices();
     }
@@ -21,6 +20,7 @@ public class ProductCLI extends AbstractCLI {
         this.ln(String.format("Bienvenue chez %s. Choisissez un de nos produits:", restaurant.getName()));
 
         Set<Product> productSet = null;
+
         try {
             productSet = productServices.getRestaurantProducts(restaurant.getId());
         } catch (SQLException e) {
@@ -36,7 +36,7 @@ public class ProductCLI extends AbstractCLI {
         }
 
         int index = this.readIntFromUser(products.length - 1);
-        System.out.println("Je suis passé par là : getRestaurantProduct de ProductCLI");
+
         return (Product) products[index];
     }
 }

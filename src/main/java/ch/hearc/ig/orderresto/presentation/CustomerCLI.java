@@ -5,15 +5,15 @@ import ch.hearc.ig.orderresto.business.Customer;
 import ch.hearc.ig.orderresto.business.OrganizationCustomer;
 import ch.hearc.ig.orderresto.business.PrivateCustomer;
 
-import ch.hearc.ig.orderresto.persistence.CustomerDataMapper;
 import ch.hearc.ig.orderresto.services.CustomerServices;
 
 import java.sql.SQLException;
 
 public class CustomerCLI extends AbstractCLI {
 
-    private CustomerServices customerServices;
+    private final CustomerServices customerServices;
 
+    // Initialisation de l'instance de CustomerServices
     public CustomerCLI() {
         this.customerServices = new CustomerServices();
     }
@@ -33,13 +33,14 @@ public class CustomerCLI extends AbstractCLI {
             e.printStackTrace();
         }
         if (customer != null && customer.getEmail().equals(email)) {
-            System.out.println("Je suis passé par là : getExistingCustomer de CustomerCLI");
             return customer;
         } else {
             return null;
         }
     }
 
+    // Création d'un nouveau client, privé ou organisation, en fonction du choix de l'utilisateur
+    // Le client est créé par l'instance de CustomerServices et les méthodes de celle-ci
     public Customer createNewCustomer() {
         Customer customer = null;
         this.ln("Êtes-vous un client privé ou une organisation?");
@@ -79,7 +80,7 @@ public class CustomerCLI extends AbstractCLI {
             this.ln("Erreur lors de la création du client.");
             e.printStackTrace();
         }
-        System.out.println("Je suis passé par là : createNewCustomer de CustomerCLI");
+
         return customer;
     }
 }

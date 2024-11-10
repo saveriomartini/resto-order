@@ -1,16 +1,16 @@
 package ch.hearc.ig.orderresto.presentation;
 
 import ch.hearc.ig.orderresto.business.Restaurant;
-//import ch.hearc.ig.orderresto.persistence.FakeDb;
-import ch.hearc.ig.orderresto.persistence.RestaurantDataMapper;
+
 import ch.hearc.ig.orderresto.services.RestaurantServices;
 
 import java.util.Set;
 
 public class RestaurantCLI extends AbstractCLI {
 
-    private RestaurantServices restaurantServices;
+    private final RestaurantServices restaurantServices;
 
+    // Initialisation de l'instance de RestaurantServices
     public RestaurantCLI() {
         this.restaurantServices = new RestaurantServices();
     }
@@ -33,7 +33,6 @@ public class RestaurantCLI extends AbstractCLI {
             this.ln(String.format("%d. %s.", i, restaurant.getName()));
         }
         int index = this.readIntFromUser(allRestaurantsArray.length - 1);
-        System.out.println("Je suis passé par là : getExistingRestaurant de RestaurantCLI");
 
         return (Restaurant) allRestaurantsArray[index];
     }

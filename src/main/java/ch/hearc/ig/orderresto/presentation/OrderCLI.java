@@ -14,12 +14,15 @@ import java.util.Set;
 
 public class OrderCLI extends AbstractCLI {
 
-    private OrderServices orderServices;
+    private final OrderServices orderServices;
 
+    // Initialisation de l'instance de OrderServices
     public OrderCLI() {
         this.orderServices = new OrderServices();
     }
 
+    // Création d'une nouvelle commande en fonction du choix de l'utilisateur
+    // La commande est créée par l'instance de OrderServices et les méthodes de celle-ci
     public Order createNewOrder() throws SQLException {
         this.ln("======================================================");
         Restaurant restaurant = (new RestaurantCLI()).getExistingRestaurant();
@@ -47,7 +50,6 @@ public class OrderCLI extends AbstractCLI {
 
         Order order = orderServices.createNewOrder(customer, restaurant, product);
         this.ln("Merci pour votre commande!");
-        System.out.println("Je suis passé par là : createNewOrder de OrderCLI");
         return order;
     }
 
@@ -64,7 +66,6 @@ public class OrderCLI extends AbstractCLI {
             return;
         }
 
-        System.out.println("Je suis passé par là : displayOrders de OrderCLI");
         this.ln("Voici les commandes pour " + customer.getEmail() + ":");
 
         for (Order order : allOrders) {

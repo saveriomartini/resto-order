@@ -12,12 +12,13 @@ import java.sql.*;
 
 public class CustomerDataMapper {
 
-    private IdentityMap<Customer> identityMapCustomer = new IdentityMap<>();
+    private final IdentityMap<Customer> identityMapCustomer = new IdentityMap<>();
     private static CustomerDataMapper instanceCustomerDataMapper;
 
     private CustomerDataMapper() {
     }
 
+    // Singleton pour récupération, si elle existe, ou nouvelle instanciation si elle n'existe pas de CustomerDataMapper
     public static CustomerDataMapper getInstance() {
         if (instanceCustomerDataMapper == null) {
             instanceCustomerDataMapper = new CustomerDataMapper();
@@ -25,6 +26,9 @@ public class CustomerDataMapper {
         return instanceCustomerDataMapper;
     }
 
+    // Récupération du client, en fonction de l'ID, dans l'IdentityMap de Customer si il existe
+    // Sinon on va chercher le client dans la DB et on l'ajoute dans l'IdentityMap
+    // La méthode recherche si le client est une organisation ou un client privé
     public Customer findCustomerById(Long id) {
 
         if (identityMapCustomer.contains(id)) {
@@ -39,7 +43,7 @@ public class CustomerDataMapper {
                     String legalForm = rs.getString("forme_sociale");
                     Customer customer;
                     if (legalForm != null) {
-                        customer= findOrganizationByID(id);
+                        customer = findOrganizationByID(id);
                     } else {
                         customer = findPrivateByID(id);
                     }
@@ -55,6 +59,9 @@ public class CustomerDataMapper {
         }
     }
 
+    // Récupération du client dans l'IdentityMap de Customer si il existe
+    // Sinon on va chercher le client dans la DB et on l'ajoute dans l'IdentityMap
+    // La méthode recherche si le client est une organisation ou un client privé
     public Customer findCustomerByEmail(String email) {
 
         for (Customer customer : identityMapCustomer.values()) {
@@ -74,9 +81,9 @@ public class CustomerDataMapper {
                     String legalForm = rs.getString("forme_sociale");
                     Customer customer;
                     if (legalForm != null) {
-                        customer= findOrganizationByID(idCustomer);
+                        customer = findOrganizationByID(idCustomer);
                     } else {
-                        customer= findPrivateByID(idCustomer);
+                        customer = findPrivateByID(idCustomer);
                     }
                     identityMapCustomer.put(idCustomer, customer);
                     return customer;
@@ -90,8 +97,10 @@ public class CustomerDataMapper {
         return null;
     }
 
+    // Récupération du client organisation et de ses spécificités dans l'IdentityMap de Customer si il existe
+    // Sinon on va chercher le client dans la DB et on l'ajoute dans l'IdentityMap
+    // La méthode ne traite que les clients de type organisation
     public Customer findOrganizationByID(Long id) throws SQLException {
-
 
         if (identityMapCustomer.contains(id)) {
             return identityMapCustomer.get(id);
@@ -126,6 +135,9 @@ public class CustomerDataMapper {
         return null;
     }
 
+    // Récupération du client privé et de ses spécificités dans l'IdentityMap de Customer si il existe
+    // Sinon on va chercher le client dans la DB et on l'ajoute dans l'IdentityMap
+    // La méthode ne traite que les clients de type privé
     public Customer findPrivateByID(Long id) throws SQLException {
 
         if (identityMapCustomer.contains(id)) {
@@ -161,6 +173,8 @@ public class CustomerDataMapper {
         return null;
     }
 
+    // Insertion du client dans la DB et ajout dans l'IdentityMap de Customer
+    // La méthode gère si le client est de type organisation ou privé
     public Long insert(Customer customer) {
 
         long idCustomer = -1;
@@ -203,10 +217,5 @@ public class CustomerDataMapper {
             e.printStackTrace();
         }
         return idCustomer;
-    }
-
-    // Pour tester seulement, ce n'est pas utile pour le projet
-    public void printIndentityMap(){
-        System.out.println(identityMapCustomer.toString());
     }
 }

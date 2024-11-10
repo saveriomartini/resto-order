@@ -1,11 +1,8 @@
 package ch.hearc.ig.orderresto.persistence;
 
-import ch.hearc.ig.orderresto.business.Order;
-
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 public class IdentityMap<T> {
     Map<Long, T> map = new HashMap<>();
@@ -24,10 +21,6 @@ public class IdentityMap<T> {
 
     public Collection<T> values() {
         return map.values();
-    }
-
-    public int size() {
-        return map.size();
     }
 
     @Override

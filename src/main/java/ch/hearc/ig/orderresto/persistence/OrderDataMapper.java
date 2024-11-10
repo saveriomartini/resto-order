@@ -19,12 +19,14 @@ import java.util.Set;
 
 public class OrderDataMapper {
 
-    private IdentityMap<Order> identityMapOrder = new IdentityMap<>();
+    private final IdentityMap<Order> identityMapOrder = new IdentityMap<>();
+
     private static OrderDataMapper instanceOfOrderDataMapper;
 
     public OrderDataMapper() {
     }
 
+    // Singleton, pour récupération si elle existe ou nouvelle instanciation si elle n'existe pas de OrderDataMapper
     public static OrderDataMapper getInstance() {
         if (instanceOfOrderDataMapper == null) {
             instanceOfOrderDataMapper = new OrderDataMapper();
@@ -32,18 +34,20 @@ public class OrderDataMapper {
         return instanceOfOrderDataMapper;
     }
 
-   public Set<Order> findAllOrdersByCustomer(Customer customer) throws SQLException {
-        Set<Order> orderSet = new HashSet<>();
+    // Récupération de toutes les commandes d'un client en fonction du client saisi
+   public Set<Order> findAllOrdersByCustomer(Customer customer) {
 
-        // Log la taille de la map
-        System.out.println("Taille de identityMapOrder : " + identityMapOrder.size());
+       Set<Order> orderSet = new HashSet<>();
 
+        // Vérification si la commande est déjà dans l'IdentityMap de l'instance
        for (Order order : OrderDataMapper.instanceOfOrderDataMapper.identityMapOrder.values()) {
            if (order.getCustomer().getId().equals(customer.getId())) {
                orderSet.add(order);
            }
        }
 
+       // Si la map est vide et donc orderSet aussi, on va chercher les commandes dans la DB grâce à une jointure des tables commande, produit_commande, produit et restaurant
+       // Ces jointures permettent de récupérer les informations nécessaires pour instancier les objets Order, Product et Restaurant et garantir les relations fk
        if (orderSet.isEmpty()) {
             try {
                 Connection dbConnect = DbUtils.getConnection();
@@ -81,6 +85,7 @@ public class OrderDataMapper {
         return orderSet;
     }
 
+    // Insertion d'une commande dans la DB et ajout dans l'IdentityMap
     public Order insertOrder(Order order) {
         try {
             Connection dbConnect = DbUtils.getConnection();
@@ -106,6 +111,7 @@ public class OrderDataMapper {
         return order;
     }
 
+    //Insertion des produits liés une commande dans la DB et ajout dans l'IdentityMap si nécessaire
     public void insertOrderProducts(Order order) {
 
         try {

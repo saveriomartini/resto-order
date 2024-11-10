@@ -16,7 +16,6 @@ public class CustomerServices {
 
             CustomerDataMapper customerDataMapper = CustomerDataMapper.getInstance();
             customerDataMapper.insert(customer);
-            System.out.println("Je suis passé par là : creatNewCustomer de CustomerServices");
 
             dbConnect.commit();
             return customer;
@@ -33,12 +32,10 @@ public class CustomerServices {
     }
 
     public Customer getExistingCustomerId(Long customerId) throws SQLException {
-        System.out.println("Je suis passé par là : getExistingCustomerId de CustomerServices");
         return CustomerDataMapper.getInstance().findCustomerById(customerId);
     }
 
     public Customer getExistingCustomerEmail(String email) throws SQLException {
-        System.out.println("Je suis passé par là : getExistingCustomerEmail de CustomerServices");
         return CustomerDataMapper.getInstance().findCustomerByEmail(email);
     }
 }
