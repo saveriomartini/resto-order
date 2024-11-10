@@ -13,20 +13,22 @@ import java.util.Set;
 
 public class OrderServices {
 
-    public Order createNewOrder(Customer customer, Restaurant restaurant, Product product) throws SQLException {
+    public Order createNewOrder(Customer customer, Restaurant restaurant, Set<Product> products) throws SQLException {
         Connection dbConnect = null;
         try {
             dbConnect = DbUtils.getConnection();
             dbConnect.setAutoCommit(false);
 
             Order order = new Order(null, customer, restaurant, false, LocalDateTime.now());
-            order.addProduct(product);
+            for (Product product : products){
+                order.addProduct(product);
+            }
+
 
             OrderDataMapper orderDataMapper = OrderDataMapper.getInstance();
             orderDataMapper.insertOrder(order);
             orderDataMapper.insertOrderProducts(order);
 
-            product.addOrder(order);
             restaurant.addOrder(order);
             customer.addOrder(order);
 

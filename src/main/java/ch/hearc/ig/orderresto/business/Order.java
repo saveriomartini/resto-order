@@ -55,6 +55,7 @@ public class Order {
 
     public void addProduct(Product product) {
         this.products.add(product);
+        product.addOrder(this);
         this.totalAmount = this.totalAmount.add(product.getUnitPrice());
     }
 

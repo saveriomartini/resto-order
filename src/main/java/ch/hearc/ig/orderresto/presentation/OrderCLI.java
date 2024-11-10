@@ -9,6 +9,7 @@ import ch.hearc.ig.orderresto.services.OrderServices;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashSet;
 import java.util.Set;
 
 public class OrderCLI extends AbstractCLI {
@@ -25,7 +26,21 @@ public class OrderCLI extends AbstractCLI {
     public Order createNewOrder() throws SQLException {
         this.ln("======================================================");
         Restaurant restaurant = (new RestaurantCLI()).getExistingRestaurant();
-        Product product = (new ProductCLI()).getRestaurantProduct(restaurant);
+
+        Set<Product> products = new HashSet<>();
+
+        while (true){
+            Product product = (new ProductCLI()).getRestaurantProduct(restaurant);
+            products.add(product);
+            this.ln("Voulez-vous ajouter un autre produit?");
+            this.ln("0. Non");
+            this.ln("1. Oui");
+            int userChoice = this.readIntFromUser(1);
+            if (userChoice == 0) {
+                break;
+            }
+        }
+
 
         this.ln("======================================================");
         this.ln("0. Annuler");
@@ -46,7 +61,7 @@ public class OrderCLI extends AbstractCLI {
             System.out.println("Nouveau client créé : " + customer.getId());
         }
 
-        Order order = orderServices.createNewOrder(customer, restaurant, product);
+        Order order = orderServices.createNewOrder(customer, restaurant, products);
         this.ln("Merci pour votre commande!");
         return order;
     }
