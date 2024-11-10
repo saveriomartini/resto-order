@@ -61,4 +61,13 @@ public class Order extends AbstractRestoObject {
     public void setId(long aLong) {
         this.id = aLong;
     }
+
+    @Override
+    public String toString() {
+        return "Commande No. " + getId() +
+                ", Client : " + getCustomer().getId() +
+                ", Restaurant : " + getRestaurant().getId() +
+                ", A emporter : " + getTakeAway() +
+                ", Date : " + getWhen();
+    }
 }

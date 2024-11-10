@@ -50,11 +50,11 @@ public class Product extends AbstractRestoObject {
     @Override
     public String toString() {
         return String.format(
-                "%s - %.2f de chez %s: %s",
+                "%s - %.2f de chez %s:",
                 this.getName(),
                 this.getUnitPrice(),
-                this.getRestaurant().getName(),
-                this.getDescription()
+                this.getRestaurant().getName()
+                //this.getDescription()
         );
     }
 
