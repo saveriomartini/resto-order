@@ -11,6 +11,7 @@ public class Restaurant extends AbstractRestoObject {
     private Address address;
     private Set<Product> productsCatalog;
 
+
     public Restaurant(Long id, String name, Address address) {
         this.id = id;
         this.name = name;

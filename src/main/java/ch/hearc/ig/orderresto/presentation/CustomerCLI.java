@@ -7,6 +7,8 @@ import ch.hearc.ig.orderresto.business.PrivateCustomer;
 
 import ch.hearc.ig.orderresto.persistence.CustomerDataMapper;
 
+import java.sql.SQLException;
+
 public class CustomerCLI extends AbstractCLI {
 
     private CustomerDataMapper customerDataMapper;
@@ -19,34 +21,21 @@ public class CustomerCLI extends AbstractCLI {
         }
     }
 
-    public Customer getExistingCustomer() {
+    public Customer getExistingCustomer() throws SQLException {
         this.ln("Quelle est votre addresse email?");
         String email = this.readEmailFromUser();
         Customer customer = customerDataMapper.findCustomerByEmail(email);
         if (customer != null && customer.getEmail().equals(email)) {
             return customer;
         } else {
-            return null;
+            this.ln("Client non trouvé.");
+            (new MainCLI()).run();
         }
+
+        return null;
     }
 
-    public void getCustomerById(Long id) {
-        Customer customer = customerDataMapper.findCustomerById(id);
-        if (customer != null) {
-            this.ln("Le client est le suivant : " + customer);
-        } else {
-            this.ln("Client non trouvé.");
-        }
-    }
 
-    public void getCustomerByEmail(String email) {
-        Customer customer = customerDataMapper.findCustomerByEmail(email);
-        if (customer != null) {
-            this.ln("Le client est le suivant : " + customer);
-        } else {
-            this.ln("Client non trouvé.");
-        }
-    }
 
     public Customer createNewCustomer() {
         Customer customer = null;

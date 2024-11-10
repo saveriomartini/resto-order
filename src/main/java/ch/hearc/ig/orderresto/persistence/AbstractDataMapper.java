@@ -1,14 +1,13 @@
 package ch.hearc.ig.orderresto.persistence;
 
+import ch.hearc.ig.orderresto.business.Restaurant;
 import ch.hearc.ig.orderresto.business.RestoObject;
 import ch.hearc.ig.orderresto.service.DbUtils;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public abstract class AbstractDataMapper {
 
@@ -17,6 +16,7 @@ public abstract class AbstractDataMapper {
 
     //Create
     protected abstract String insertStatement();
+
     protected abstract void doInsert(RestoObject restoObject, PreparedStatement stmt) throws SQLException;
 
     public Long insert(RestoObject restoObject) {
@@ -38,11 +38,9 @@ public abstract class AbstractDataMapper {
     }
 
 
-
-
-
     //Read
-    abstract protected String findStatement();
+    protected abstract String findStatement();
+    protected abstract String findAllStatement();
 
     protected RestoObject abstractFind(Long id) {
         RestoObject result = cache.get(id);
@@ -66,6 +64,22 @@ public abstract class AbstractDataMapper {
         return null;
     }
 
+    public Set<Restaurant> AbstractFindAll() {
+        Set<Restaurant> result = new HashSet<>();
+        PreparedStatement findAllStatement = null;
+        try {
+            findAllStatement = DbUtils.getConnection().prepareStatement(findAllStatement());
+            ResultSet rs = findAllStatement.executeQuery();
+            while (rs.next()) {
+                result.add((Restaurant) load(rs));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+
 
 
     protected RestoObject load(ResultSet rs) throws SQLException {
@@ -78,7 +92,9 @@ public abstract class AbstractDataMapper {
         return result;
     }
 
-    abstract protected RestoObject doLoad(Long id, ResultSet rs) throws SQLException;
+
+    protected abstract RestoObject doLoad(Long id, ResultSet rs) throws SQLException;
+
 
     //Update
     public void update(RestoObject restoObject) {
@@ -92,6 +108,9 @@ public abstract class AbstractDataMapper {
 
 
 
+
+
 }
+
 
 

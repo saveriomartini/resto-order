@@ -2,11 +2,13 @@ package ch.hearc.ig.orderresto.persistence;
 
 import ch.hearc.ig.orderresto.business.*;
 import java.sql.*;
+import java.util.List;
+import java.util.Set;
 
 
 public class RestaurantDataMapper extends AbstractDataMapper {
 
-    public static final String COLUMNS = "numero, nom, pays, code_postal, localite, rue, num_rue";
+    public static final String COLUMNS = "(nom, pays, code_postal, localite, rue, num_rue)";
     private static RestaurantDataMapper instanceOfRestaurantDataMapper;
 
     private RestaurantDataMapper() {
@@ -21,7 +23,7 @@ public class RestaurantDataMapper extends AbstractDataMapper {
 
 
     protected String insertStatement() {
-        return "INSERT INTO restaurant (nom, pays, code_postal, localite, rue, num_rue) VALUES (?,?,?,?,?,?)";
+        return "INSERT INTO restaurant" + COLUMNS + "VALUES (?,?,?,?,?,?)";
     }
 
 
@@ -41,9 +43,11 @@ public class RestaurantDataMapper extends AbstractDataMapper {
         return "SELECT * FROM restaurant WHERE numero = ?";
     }
 
-    public Restaurant find(Long id) {
-        return (Restaurant) abstractFind(id);
+    protected String findAllStatement() {
+        return "SELECT * FROM restaurant";
     }
+
+
 
 
     @Override
@@ -61,6 +65,14 @@ public class RestaurantDataMapper extends AbstractDataMapper {
         );
     }
 
+
+    protected Restaurant find(long id) {
+        return (Restaurant) abstractFind(id);
+    }
+
+    protected Set<Restaurant> findAll() {
+        return AbstractFindAll();
+    }
 
 
 }

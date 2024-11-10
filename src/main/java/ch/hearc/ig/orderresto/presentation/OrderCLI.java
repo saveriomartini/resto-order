@@ -15,7 +15,6 @@ public class OrderCLI extends AbstractCLI {
     public Order createNewOrder() throws SQLException {
         this.ln("======================================================");
         Restaurant restaurant = (new RestaurantCLI()).getExistingRestaurant();
-        Product product = (new ProductCLI()).getRestaurantProduct(restaurant);
 
         this.ln("======================================================");
         this.ln("0. Annuler");
@@ -39,11 +38,13 @@ public class OrderCLI extends AbstractCLI {
         }
 
         Order order = new Order(null, customer, restaurant, false, LocalDateTime.now());
+        Product product = (new ProductCLI()).getRestaurantProduct(restaurant);
         order.addProduct(product);
 
-        OrderDataMapper orderDataMapper = new OrderDataMapper();
-        orderDataMapper.insertOrder(order);
-        orderDataMapper.insertOrderProducts(order);
+        OrderDataMapper orderDataMapper = OrderDataMapper.getInstance();
+
+        orderDataMapper.insert(order);
+        orderDataMapper.insert(product);
 
         product.addOrder(order);
         restaurant.addOrder(order);
@@ -56,17 +57,13 @@ public class OrderCLI extends AbstractCLI {
         Customer customer = (new CustomerCLI()).getExistingCustomer();
         if (customer == null) {
             this.ln("Désolé, nous ne connaissons pas cette personne.");
-            return;
-        }
-
-        Set<Order> allOrders = new OrderDataMapper().findAllOrdersByCustomer(customer);
-        if (allOrders.isEmpty()) {
-            this.ln(String.format("Désolé, il n'y a aucune commande pour %s", customer.getEmail()));
-            return;
+        } else if (customer.getOrders().isEmpty()) {
+            this.ln("Vous n'avez pas encore passé de commande.");
         }
 
         this.ln("Voici les commandes pour " + customer.getEmail() + ":");
 
+        Set<Order> allOrders = customer.getOrders();
         for (Order order : allOrders) {
             LocalDateTime when = order.getWhen();
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy à HH:mm");

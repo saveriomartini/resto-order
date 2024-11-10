@@ -11,7 +11,7 @@ public class RestaurantCLI extends AbstractCLI {
     public Restaurant getExistingRestaurant() {
         this.ln("Choisissez un restaurant:");
         RestaurantDataMapper restaurantDataMapper = RestaurantDataMapper.getInstance();
-        Set<Restaurant> allRestaurants = restaurantDataMapper.getAllRestaurants();
+        Set<Restaurant> allRestaurants = restaurantDataMapper.AbstractFindAll();
         Object [] allRestaurantsArray = allRestaurants.toArray();
         for (int i = 0 ; i < allRestaurantsArray.length ; i++) {
             Restaurant restaurant = (Restaurant) allRestaurantsArray[i];
