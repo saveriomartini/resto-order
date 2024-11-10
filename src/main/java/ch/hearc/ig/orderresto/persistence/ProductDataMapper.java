@@ -37,14 +37,10 @@ public class ProductDataMapper extends AbstractDataMapper {
     protected String findStatement() {
         return "SELECT * FROM produit WHERE numero = ?";
     }
-
-    /**
-     * @return
-     */
-    @Override
-    protected String findAllStatement() {
-        return "";
+    protected String findAllStatement() { return "SELECT * FROM produit WHERE fk_resto = ?";
     }
+
+
 
     @Override
     protected RestoObject doLoad(Long id, ResultSet rs) throws SQLException {
@@ -57,8 +53,10 @@ public class ProductDataMapper extends AbstractDataMapper {
         );
     }
 
-    protected Product find(Long id) {
+    public Product find(Long id) {
         return (Product) abstractFind(id);
     }
-
+    public List<Product> findAll(Long id) {
+        return (List<Product>) abstractFindAll(id);
+    }
 }

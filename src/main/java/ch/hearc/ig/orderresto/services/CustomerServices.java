@@ -11,7 +11,7 @@ public class CustomerServices {
     public Customer createNewCustomer(Customer customer) throws SQLException {
         Connection dbConnect = null;
         try {
-            dbConnect = DbUtils.getConnection();
+            dbConnect = ch.hearc.ig.orderresto.service.DbUtils.getConnection();
             dbConnect.setAutoCommit(false);
 
             CustomerDataMapper customerDataMapper = CustomerDataMapper.getInstance();
@@ -34,7 +34,7 @@ public class CustomerServices {
 
     public Customer getExistingCustomerId(Long customerId) throws SQLException {
         System.out.println("Je suis passé par là : getExistingCustomerId de CustomerServices");
-        return CustomerDataMapper.getInstance().findCustomerById(customerId);
+        return CustomerDataMapper.getInstance().find(customerId);
     }
 
     public Customer getExistingCustomerEmail(String email) throws SQLException {

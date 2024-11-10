@@ -1,8 +1,7 @@
 package ch.hearc.ig.orderresto.services;
 
-import ch.hearc.ig.orderresto.business.Product;
-import ch.hearc.ig.orderresto.business.Restaurant;
-import ch.hearc.ig.orderresto.persistence.ProductDataMapper;
+import ch.hearc.ig.orderresto.business.*;
+import ch.hearc.ig.orderresto.persistence.*;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -14,11 +13,11 @@ public class ProductServices {
     public Set<Product> getRestaurantProducts(Long restaurantId) throws SQLException {
         Connection dbConnect = null;
         try {
-            dbConnect = DbUtils.getConnection();
+            dbConnect = ch.hearc.ig.orderresto.service.DbUtils.getConnection();
             dbConnect.setAutoCommit(false);
 
             ProductDataMapper productDataMapper = ProductDataMapper.getInstance();
-            Set<Product> products = productDataMapper.getAllProductsByRestaurant(restaurantId);
+            Set<Product> products = (Set<Product>) productDataMapper.findAll(restaurantId);
             System.out.println("Je suis passé par là : getRestaurantProducts de ProductServices");
 
             dbConnect.commit();
