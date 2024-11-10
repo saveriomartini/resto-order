@@ -96,11 +96,12 @@ public class OrderDataMapper {
                 ps.setTimestamp(4, java.sql.Timestamp.valueOf(order.getWhen()));
                 ps.registerReturnParameter(5, OracleTypes.NUMBER);
                 ps.executeUpdate();
+
                 try (ResultSet rs = ps.getReturnResultSet()) {
                     if (rs.next()) {
-                        order.setId(rs.getLong(1));
-                        OrderDataMapper.getInstance().identityMapOrder.put(order.getId(), order);
 
+                        order.setId(rs.getLong(1));
+                        System.out.println("Order id: " + order.getId());
                     }
                 }
             }

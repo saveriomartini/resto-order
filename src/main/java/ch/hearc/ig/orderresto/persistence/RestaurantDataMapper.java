@@ -14,7 +14,7 @@ import java.util.Set;
 
 public class RestaurantDataMapper {
 
-    private IdentityMap<Product> identityMapRestaurant = new IdentityMap<>();
+    protected IdentityMap<Restaurant> identityMapRestaurant = new IdentityMap<>();
     private static RestaurantDataMapper instanceOfRestaurantDataMapper;
 
     public RestaurantDataMapper() {
@@ -29,13 +29,18 @@ public class RestaurantDataMapper {
 
     public Restaurant findById(Long id) {
 
+        Restaurant restaurant = null;
+        if (identityMapRestaurant.contains(id)) {
+            return identityMapRestaurant.get(id);
+        }
         try {
             Connection connection = DbUtils.getConnection();
             java.sql.PreparedStatement statement = connection.prepareStatement("SELECT * FROM restaurant WHERE numero = ?");
             statement.setLong(1, id);
             java.sql.ResultSet resultSet = statement.executeQuery();
+
             if (resultSet.next()) {
-                return new Restaurant(
+                restaurant= new Restaurant(
                         resultSet.getLong("numero"),
                         resultSet.getString("nom"),
                         new Address(
@@ -47,10 +52,11 @@ public class RestaurantDataMapper {
                         )
                 );
             }
+            identityMapRestaurant.put(id, restaurant);
         } catch (java.sql.SQLException e) {
             throw new RuntimeException("Impossible de récupérer le restaurant.", e);
         }
-        return null;
+        return restaurant;
     }
 
     public Set<Restaurant>getAllRestaurants() {
@@ -60,8 +66,9 @@ public class RestaurantDataMapper {
             Connection connection = DbUtils.getConnection();
             java.sql.PreparedStatement statement = connection.prepareStatement("SELECT * FROM restaurant");
             java.sql.ResultSet resultSet = statement.executeQuery();
+            Restaurant restaurant;
             while (resultSet.next()) {
-                restaurants.add(new Restaurant(
+                restaurant= new Restaurant(
                         resultSet.getLong("numero"),
                         resultSet.getString("nom"),
                         new Address(
@@ -71,7 +78,8 @@ public class RestaurantDataMapper {
                                 resultSet.getString("rue"),
                                 resultSet.getString("num_rue")
                         )
-                ));
+                );
+                restaurants.add(restaurant);
             }
             return restaurants;
         } catch (java.sql.SQLException e) {
@@ -104,26 +112,5 @@ public class RestaurantDataMapper {
         }
         return products;
     }
-
-    /*public void insert (Restaurant restaurant) {
-
-        Address address = new Address("CH", "1000", "Lausanne", "Rue de la Grotte", "1");
-
-        String name = restaurant.getName();
-        String code_postal = address.getPostalCode();
-        String localite = address.getLocality();
-        String rue = address.getStreet();
-        String num_rue = address.getStreetNumber();
-        String pays = address.getCountryCode();
-
-        try {
-            java.sql.PreparedStatement statement = connection.prepareStatement("INSERT INTO restaurant (name, code_postal, localite, rue, num_rue, pays ) VALUES (name, code_postal, localite, rue, num_rue, pays)");
-            statement.executeUpdate();
-        } catch (java.sql.SQLException e) {
-            throw new RuntimeException("Impossible d'insérer le restaurant.", e);
-        }
-    }*/
-
-
 
 }

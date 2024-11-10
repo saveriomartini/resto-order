@@ -62,6 +62,7 @@ public class ProductDataMapper {
         return null;
     }
 
+
     // Récupération de tous les produits d'un restaurant en fonction de l'ID du restaurant saisi
     public Set<Product> getAllProductsByRestaurant(Long restaurantId) {
         Set<Product> products = new HashSet<>();
@@ -97,7 +98,6 @@ public class ProductDataMapper {
                 throw new RuntimeException("Impossible de récupérer les produits.", e);
             }
         }
-
         return products;
     }
 }

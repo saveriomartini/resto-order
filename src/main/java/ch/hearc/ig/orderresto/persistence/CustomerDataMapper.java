@@ -9,10 +9,13 @@ import oracle.jdbc.OraclePreparedStatement;
 import oracle.jdbc.OracleTypes;
 
 import java.sql.*;
+import java.util.HashMap;
+import java.util.Map;
 
 public class CustomerDataMapper {
 
     private final IdentityMap<Customer> identityMapCustomer = new IdentityMap<>();
+    private final Map<String, Customer> emailToCustomerMap = new HashMap<>();
     private static CustomerDataMapper instanceCustomerDataMapper;
 
     private CustomerDataMapper() {
@@ -48,6 +51,7 @@ public class CustomerDataMapper {
                         customer = findPrivateByID(id);
                     }
                     identityMapCustomer.put(id, customer);
+                    emailToCustomerMap.put(customer.getEmail(), customer);
                     return customer;
                 } else {
                     return null;
@@ -64,12 +68,8 @@ public class CustomerDataMapper {
     // La méthode recherche si le client est une organisation ou un client privé
     public Customer findCustomerByEmail(String email) {
 
-        for (Customer customer : identityMapCustomer.values()) {
-
-            if (customer.getEmail().equals(email)) {
-                System.out.println("Customer found in identity map");
-                return customer;
-            }
+        if (emailToCustomerMap.containsKey(email)) {
+            return emailToCustomerMap.get(email);
         }
         try {
             Connection dbConnect = DbUtils.getConnection();
@@ -86,6 +86,7 @@ public class CustomerDataMapper {
                         customer = findPrivateByID(idCustomer);
                     }
                     identityMapCustomer.put(idCustomer, customer);
+                    emailToCustomerMap.put(email, customer);
                     return customer;
                 } else {
                     return null;
@@ -210,6 +211,11 @@ public class CustomerDataMapper {
                         customer.setId(idCustomer);
                         identityMapCustomer.put(idCustomer, customer);
                         System.out.println("Client ajouté avec l'ID : " + idCustomer);
+                        idCustomer = rs.getLong(1);
+                        customer.setId(idCustomer);
+                        identityMapCustomer.put(idCustomer, customer);
+                        emailToCustomerMap.put(customer.getEmail(), customer);
+                        System.out.println("Customer inserted with id: " + idCustomer);
                     }
                 }
             }
