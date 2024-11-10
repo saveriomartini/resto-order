@@ -8,6 +8,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashSet;
 import java.util.Set;
 
 public class ProductDataMapper {
@@ -57,39 +58,39 @@ public class ProductDataMapper {
 
     public Set<Product> getAllProductsByRestaurant(Long restaurantId) {
 
-        RestaurantDataMapper restaurantDataMapper = RestaurantDataMapper.getInstance();
-        System.out.println("Checking if restaurantId is in identityMapRestaurant: " + restaurantId);
-        System.out.println("Current identityMapRestaurant: " + restaurantDataMapper.identityMapRestaurant.toString());
-        if (restaurantDataMapper.identityMapRestaurant.contains(restaurantId)) {
-            System.out.println("Restaurant found in identityMapRestaurant");
-            return restaurantDataMapper.identityMapRestaurant.get(restaurantId).getProductsCatalog();
-        } else {
-            System.out.println("Restaurant not found in identityMapRestaurant, fetching from database");
-            Restaurant resto = restaurantDataMapper.findById(restaurantId);
-            try {
-                Connection connection = DbUtils.getConnection();
-                PreparedStatement statement = connection.prepareStatement("SELECT * FROM produit WHERE fk_resto = ?");
-                statement.setLong(1, restaurantId);
-                ResultSet resultSet = statement.executeQuery();
-                while (resultSet.next()) {
-                    long productId = resultSet.getLong("numero");
-                    Product product = new Product(
-                            resultSet.getLong("numero"),
-                            resultSet.getString("nom"),
-                            resultSet.getBigDecimal("prix_unitaire"),
-                            resultSet.getString("description"),
-                            resto
-                    );
-                    identityMapProduct.put(productId, product);
-                    resto.registerProduct(product);
-                }
-                restaurantDataMapper.identityMapRestaurant.put(resto.getId(), resto);
-                System.out.println("Updated identityMapRestaurant: " + restaurantDataMapper.identityMapRestaurant.toString());
-            } catch (SQLException e) {
-                throw new RuntimeException("Impossible de récupérer les produits.", e);
+        Set<Product> products = new HashSet<>();
+        for (Product product : identityMapProduct.values()) {
+            if (product.getRestaurant().getId().equals(restaurantId)) {
+                products.add(product);
             }
-            return resto.getProductsCatalog();
         }
+
+        if (!products.isEmpty()) {
+            System.out.println("Products from identity map");
+            return products;
+        }
+
+        try {
+            Connection connection = DbUtils.getConnection();
+            PreparedStatement statement = connection.prepareStatement("SELECT * FROM produit WHERE fk_resto = ?");
+            statement.setLong(1, restaurantId);
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                long productId = resultSet.getLong("numero");
+                Product product = new Product(
+                        resultSet.getLong("numero"),
+                        resultSet.getString("nom"),
+                        resultSet.getBigDecimal("prix_unitaire"),
+                        resultSet.getString("description"),
+                        RestaurantDataMapper.getInstance().findById(restaurantId)
+                );
+                identityMapProduct.put(productId, product);
+                products.add(product);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Impossible de récupérer les produits.", e);
+        }
+        return products;
     }
 
 }

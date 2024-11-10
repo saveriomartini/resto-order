@@ -32,6 +32,9 @@ public class RestaurantDataMapper {
     public Restaurant findById(Long id) {
 
         Restaurant restaurant = null;
+        if (identityMapRestaurant.contains(id)) {
+            return identityMapRestaurant.get(id);
+        }
         try {
             Connection connection = DbUtils.getConnection();
             java.sql.PreparedStatement statement = connection.prepareStatement("SELECT * FROM restaurant WHERE numero = ?");
@@ -82,7 +85,6 @@ public class RestaurantDataMapper {
                         )
                 );
                 restaurants.add(restaurant);
-                identityMapRestaurant.put(restaurant.getId(), restaurant);
             }
             return restaurants;
         } catch (java.sql.SQLException e) {
