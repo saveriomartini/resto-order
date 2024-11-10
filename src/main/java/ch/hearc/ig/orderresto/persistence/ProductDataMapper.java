@@ -2,7 +2,7 @@ package ch.hearc.ig.orderresto.persistence;
 
 import ch.hearc.ig.orderresto.business.*;
 import java.sql.*;
-import java.util.List;
+import java.util.Set;
 
 public class ProductDataMapper extends AbstractDataMapper {
 
@@ -37,7 +37,50 @@ public class ProductDataMapper extends AbstractDataMapper {
     protected String findStatement() {
         return "SELECT * FROM produit WHERE numero = ?";
     }
-    protected String findAllStatement() { return "SELECT * FROM produit WHERE fk_resto = ?";
+
+        @Override
+    protected String findAllStatement() {
+        return "SELECT * FROM produit";
+    }
+
+    /**
+     * @return
+     */
+    @Override
+    protected String updateStatement() {
+        return "";
+    }
+
+    /**
+     * @param restoObject
+     * @param stmt
+     * @throws SQLException
+     */
+    @Override
+    protected void doUpdate(RestoObject restoObject, PreparedStatement stmt) throws SQLException {
+
+    }
+
+    /**
+     * @return
+     */
+    @Override
+    protected String deleteStatement() {
+        return "";
+    }
+
+    /**
+     * @param restoObject
+     * @param stmt
+     * @throws SQLException
+     */
+    @Override
+    protected void doDelete(RestoObject restoObject, PreparedStatement stmt) throws SQLException {
+
+    }
+
+    @Override
+    protected String findByIdStatement(Long id) { return "SELECT * FROM produit WHERE fk_resto = ?";
     }
 
 
@@ -56,7 +99,10 @@ public class ProductDataMapper extends AbstractDataMapper {
     public Product find(Long id) {
         return (Product) abstractFind(id);
     }
-    public List<Product> findAll(Long id) {
-        return (List<Product>) abstractFindAll(id);
+
+
+    public Set<RestoObject> findAll(Long id) {
+        return abstractFindAllById(id);
     }
-}
+
+   }
