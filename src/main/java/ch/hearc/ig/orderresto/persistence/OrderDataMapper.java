@@ -75,7 +75,6 @@ public class OrderDataMapper {
 
                         orderSet.add(order);
                         OrderDataMapper.instanceOfOrderDataMapper.identityMapOrder.put(orderId, order);
-                        System.out.println("Ajouté suite à une requête à la DB");
                     }
                 }
             } catch (SQLException e) {
