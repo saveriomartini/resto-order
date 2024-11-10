@@ -4,7 +4,7 @@ import ch.hearc.ig.orderresto.business.Address;
 import ch.hearc.ig.orderresto.business.Customer;
 import ch.hearc.ig.orderresto.business.OrganizationCustomer;
 import ch.hearc.ig.orderresto.business.PrivateCustomer;
-import ch.hearc.ig.orderresto.service.DbUtils;
+import ch.hearc.ig.orderresto.services.DbUtils;
 import oracle.jdbc.OraclePreparedStatement;
 import oracle.jdbc.OracleTypes;
 
@@ -15,6 +15,7 @@ import java.util.Map;
 public class CustomerDataMapper {
 
     private final IdentityMap<Customer> identityMapCustomer = new IdentityMap<>();
+    private final Map<String, Customer> emailToCustomerMap = new HashMap<>();
     private static CustomerDataMapper instanceCustomerDataMapper;
 
     private CustomerDataMapper() {
@@ -50,8 +51,6 @@ public class CustomerDataMapper {
                         customer = findPrivateByID(id);
                     }
                     identityMapCustomer.put(id, customer);
-                    return customer;
-                    identityMapCustomer.put(id, customer);
                     emailToCustomerMap.put(customer.getEmail(), customer);
                     return customer;
                 } else {
@@ -86,8 +85,6 @@ public class CustomerDataMapper {
                     } else {
                         customer = findPrivateByID(idCustomer);
                     }
-                    identityMapCustomer.put(idCustomer, customer);
-                    return customer;
                     identityMapCustomer.put(idCustomer, customer);
                     emailToCustomerMap.put(email, customer);
                     return customer;

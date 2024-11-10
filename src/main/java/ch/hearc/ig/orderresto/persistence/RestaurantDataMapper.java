@@ -3,15 +3,13 @@ package ch.hearc.ig.orderresto.persistence;
 import ch.hearc.ig.orderresto.business.Address;
 import ch.hearc.ig.orderresto.business.Product;
 import ch.hearc.ig.orderresto.business.Restaurant;
-import ch.hearc.ig.orderresto.service.DbUtils;
+import ch.hearc.ig.orderresto.services.DbUtils;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 public class RestaurantDataMapper {
@@ -114,26 +112,5 @@ public class RestaurantDataMapper {
         }
         return products;
     }
-
-    /*public void insert (Restaurant restaurant) {
-
-        Address address = new Address("CH", "1000", "Lausanne", "Rue de la Grotte", "1");
-
-        String name = restaurant.getName();
-        String code_postal = address.getPostalCode();
-        String localite = address.getLocality();
-        String rue = address.getStreet();
-        String num_rue = address.getStreetNumber();
-        String pays = address.getCountryCode();
-
-        try {
-            java.sql.PreparedStatement statement = connection.prepareStatement("INSERT INTO restaurant (name, code_postal, localite, rue, num_rue, pays ) VALUES (name, code_postal, localite, rue, num_rue, pays)");
-            statement.executeUpdate();
-        } catch (java.sql.SQLException e) {
-            throw new RuntimeException("Impossible d'insérer le restaurant.", e);
-        }
-    }*/
-
-
 
 }
