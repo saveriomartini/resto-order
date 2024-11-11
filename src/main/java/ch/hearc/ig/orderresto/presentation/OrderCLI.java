@@ -53,7 +53,7 @@ public class OrderCLI extends AbstractCLI {
             return null;
         }
         CustomerCLI customerCLI = new CustomerCLI();
-        Customer customer = null;
+        Customer customer ;
         if (userChoice == 1) {
             customer = customerCLI.getExistingCustomer();
         } else {
@@ -66,25 +66,50 @@ public class OrderCLI extends AbstractCLI {
         return order;
     }
 
-    public void displayOrders() throws SQLException {
+    public Order selectOrder() throws SQLException {
         Customer customer = (new CustomerCLI()).getExistingCustomer();
         if (customer == null) {
             this.ln("Désolé, nous ne connaissons pas cette personne.");
-            return;
+            return null;
         }
 
         Set<Order> allOrders = orderServices.findAllOrdersByCustomer(customer);
         if (allOrders.isEmpty()) {
             this.ln(String.format("Désolé, il n'y a aucune commande pour %s", customer.getEmail()));
-            return;
+            return null;
         }
 
-        this.ln("Voici les commandes pour " + customer.getEmail() + ":");
-
+        this.ln("Choissisez une commande :");
+        int index = 1;
         for (Order order : allOrders) {
             LocalDateTime when = order.getWhen();
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy à HH:mm");
-            this.ln(String.format("Commande %.2f, le %s chez %s.", order.getTotalAmount(), when.format(formatter), order.getRestaurant().getName()));
+            this.ln(String.format("%d. Commande %.2f, le %s chez %s.", index++, order.getTotalAmount(), when.format(formatter), order.getRestaurant().getName()));
+        }
+
+        int orderChoice = this.readIntFromUser(index - 1);
+        if (orderChoice < 1 || orderChoice >= index) {
+            this.ln("Choix invalide.");
+            return null;
+        }
+        index = 1;
+        for (Order order : allOrders) {
+            if (index == orderChoice) {
+                return order;
+            }
+            index++;
+        }
+        return null;
+    }
+
+    public void displayOrders( Order order){
+        LocalDateTime when = order.getWhen();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy à hh:mm");
+        this.ln(String.format("Commande %.2f, le %s chez %s.:", order.getTotalAmount(), when.format(formatter), order.getRestaurant().getName()));
+        int index = 1;
+        for (Product product: order.getProducts()) {
+            this.ln(String.format("%d. %s", index, product));
+            index++;
         }
     }
 }

@@ -14,7 +14,7 @@ public class RestaurantDataMapper {
     protected IdentityMap<Restaurant> identityMapRestaurant = new IdentityMap<>();
     private static RestaurantDataMapper instanceOfRestaurantDataMapper;
 
-    public RestaurantDataMapper() {
+    private RestaurantDataMapper() {
     }
 
     public static RestaurantDataMapper getInstance() {
@@ -27,7 +27,7 @@ public class RestaurantDataMapper {
     public Restaurant findById(Long id) {
 
         Restaurant restaurant = null;
-        if (identityMapRestaurant.contains(id)) {
+        if (identityMapRestaurant.containsKey(id)) {
             return identityMapRestaurant.get(id);
         }
         try {

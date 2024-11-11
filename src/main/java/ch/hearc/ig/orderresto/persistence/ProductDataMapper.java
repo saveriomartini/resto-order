@@ -16,7 +16,7 @@ public class ProductDataMapper {
     private final IdentityMap<Product> identityMapProduct = new IdentityMap<>();
     private static ProductDataMapper instanceOfProductDataMapper;
 
-    public ProductDataMapper() {
+    private ProductDataMapper() {
     }
 
     // Singleton pour récupération, si elle existe, ou nouvelle instanciation si elle n'existe pas de ProductDataMapper
@@ -39,6 +39,11 @@ public class ProductDataMapper {
     // N'est appelée que si le produit n'est pas dans l'IdentityMap de Product
     public Product findById(Long id) {
 
+        // Vérification si le produit est déjà dans l'identityMap
+        if (identityMapProduct.containsKey(id)) {
+            return identityMapProduct.get(id);
+        }
+
         try {
             Connection connection = DbUtils.getConnection();
             PreparedStatement statement = connection.prepareStatement("SELECT * FROM produit WHERE numero = ?");
@@ -46,15 +51,18 @@ public class ProductDataMapper {
             ResultSet resultSet = statement.executeQuery();
             if (resultSet.next()) {
                 long restaurantId = resultSet.getLong("fk_resto");
-                RestaurantDataMapper restaurantDataMapper = new RestaurantDataMapper();
+                RestaurantDataMapper restaurantDataMapper = RestaurantDataMapper.getInstance();
                 Restaurant resto = restaurantDataMapper.findById(restaurantId);
-                return new Product(
+                Product product ;
+                product= new Product(
                         resultSet.getLong("numero"),
                         resultSet.getString("nom"),
                         resultSet.getBigDecimal("prix_unitaire"),
                         resultSet.getString("description"),
                         resto
                 );
+                identityMapProduct.put(product.getId(), product);
+                return product;
             }
         } catch (SQLException e) {
             throw new RuntimeException("Impossible de récupérer le produit.", e);
@@ -82,7 +90,7 @@ public class ProductDataMapper {
                 statement.setLong(1, restaurantId);
                 ResultSet resultSet = statement.executeQuery();
                 while (resultSet.next()) {
-                    RestaurantDataMapper restaurantDataMapper = new RestaurantDataMapper();
+                    RestaurantDataMapper restaurantDataMapper = RestaurantDataMapper.getInstance();
                     Restaurant resto = restaurantDataMapper.findById(restaurantId);
                     Product product = new Product(
                             resultSet.getLong("numero"),

@@ -1,6 +1,7 @@
 package ch.hearc.ig.orderresto.presentation;
 
-//import ch.hearc.ig.orderresto.persistence.FakeDb;
+
+import ch.hearc.ig.orderresto.business.Order;
 
 import java.sql.SQLException;
 
@@ -24,11 +25,11 @@ public class MainCLI extends AbstractCLI {
         if (userChoice == 1) {
             orderCLI.createNewOrder();
         } else if (userChoice == 2) {
-            orderCLI.displayOrders();
-            /*Order existingOrder = orderCLI.selectOrder();
+
+            Order existingOrder = orderCLI.selectOrder();
             if (existingOrder != null) {
-                orderCLI.displayOrder(existingOrder);
-            }*/
+                orderCLI.displayOrders(existingOrder);
+            }
         }
         this.run();
     }

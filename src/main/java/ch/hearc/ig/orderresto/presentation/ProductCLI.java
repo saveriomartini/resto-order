@@ -19,7 +19,7 @@ public class ProductCLI extends AbstractCLI {
     public Product getRestaurantProduct(Restaurant restaurant) {
         this.ln(String.format("Bienvenue chez %s. Choisissez un de nos produits:", restaurant.getName()));
 
-        Set<Product> productSet = null;
+        Set<Product> productSet;
 
         try {
             productSet = productServices.getRestaurantProducts(restaurant.getId());
@@ -39,4 +39,6 @@ public class ProductCLI extends AbstractCLI {
 
         return (Product) products[index];
     }
+
+
 }

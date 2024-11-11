@@ -34,7 +34,7 @@ public class CustomerDataMapper {
     // La méthode recherche si le client est une organisation ou un client privé
     public Customer findCustomerById(Long id) {
 
-        if (identityMapCustomer.contains(id)) {
+        if (identityMapCustomer.containsKey(id)) {
             return identityMapCustomer.get(id);
         }
         try {
@@ -103,7 +103,7 @@ public class CustomerDataMapper {
     // La méthode ne traite que les clients de type organisation
     public Customer findOrganizationByID(Long id) throws SQLException {
 
-        if (identityMapCustomer.contains(id)) {
+        if (identityMapCustomer.containsKey(id)) {
             return identityMapCustomer.get(id);
         }
 
@@ -141,7 +141,7 @@ public class CustomerDataMapper {
     // La méthode ne traite que les clients de type privé
     public Customer findPrivateByID(Long id) throws SQLException {
 
-        if (identityMapCustomer.contains(id)) {
+        if (identityMapCustomer.containsKey(id)) {
             return identityMapCustomer.get(id);
         }
         Connection dbConnect = DbUtils.getConnection();

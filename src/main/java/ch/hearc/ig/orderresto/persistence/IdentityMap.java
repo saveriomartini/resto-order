@@ -15,7 +15,7 @@ public class IdentityMap<T>{
         map.put(id, object);
     }
 
-    public boolean contains (Long id) {
+    public boolean containsKey(Long id) {
         return map.containsKey(id);
     }
 
